@@ -1,0 +1,26 @@
+{
+  "name": "social_chatbanklib",
+  "version": "1.0.0",
+  "description": "AllexJS LevelDB implementation of a chat bank",
+  "main": "index.js",
+  "scripts": {
+    "test": "allex-mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/social-libs/chatbank.git"
+  },
+  "keywords": [
+    "ecosystem:AllexJS",
+    "social",
+    "chat",
+    "bank",
+    "lib"
+  ],
+  "author": "Andrija Petrovic <andrija.hers@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/social-libs/chatbank/issues"
+  },
+  "homepage": "https://github.com/social-libs/chatbank#readme"
+}
