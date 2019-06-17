@@ -1,4 +1,4 @@
-function createJobOnBank (lib, jobondestroyablelib) {
+function createJobOnBank (lib, jobondestroyablelib, mylib) {
   'use strict';
 
   var JobOnDestroyableBase = jobondestroyablelib.JobOnDestroyableBase;
@@ -11,7 +11,7 @@ function createJobOnBank (lib, jobondestroyablelib) {
     return this.destroyable && this.destroyable.users;
   };
 
-  return JobOnBank;
+  mylib.JobOnBank = JobOnBank;
 }
 
 module.exports = createJobOnBank;
