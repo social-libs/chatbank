@@ -25,6 +25,8 @@ function createLib (execlib, leveldblib, jobondestroyablelib) {
     this.users = null;
     this.conversations = null;
     this.messages = null;
+    this.conversationsDefer = q.defer();
+    this.messagesDefer = q.defer();
     this.jobs = new qlib.JobCollection();
     path = prophash ? (prophash.path || '.') : '.';
     q.all([
@@ -60,10 +62,18 @@ function createLib (execlib, leveldblib, jobondestroyablelib) {
       this.jobs.destroy();
     }
     this.jobs = null;
+    if (this.messagesDefer) {
+      this.messagesDefer.resolve(true);
+    }
+    this.messagesDefer = null;
     if (this.messages) {
       this.messages.destroy();
     }
     this.messages = null;
+    if (this.conversationsDefer) {
+      this.conversationsDefer.resolve(true);
+    }
+    this.conversationsDefer = null;
     if (this.conversations) {
       this.conversations.destroy();
     }
@@ -87,6 +97,10 @@ function createLib (execlib, leveldblib, jobondestroyablelib) {
       starteddefer.resolve(this);
     }
   };
+  ChatBank.prototype.processNewMessage = function (from, togroup, to, message) {
+    return this.jobs.run('.', new this.Jobs.ProcessNewMessageJob(this, from, togroup, to, message));
+  };
+  ChatBank.prototype.Jobs = jobs;
 
   return {
     Bank: ChatBank

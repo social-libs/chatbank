@@ -1,14 +1,12 @@
+var lib = require('./lib');
 describe('Basic Test', function () {
   it('Load Library', function () {
     return setGlobal('Lib', require('../')(execlib));
   });
   it('Create Bank', function () {
-    var d = q.defer();
-    new Lib.Bank({
-      path: require('path').join(__dirname, 'basictest.db'),
-      initiallyemptydb: true,
-      starteddefer: d
-    })
-    return setGlobal('Bank', d.promise);
+    return setGlobal('Bank', lib.createBank('basictest.db', true));
+  });
+  it('Process new P2P Message', function () {
+    return qlib.promise2console(Bank.processNewMessage('andra', null, 'luka', 'blah'), 'P2P');
   });
 });

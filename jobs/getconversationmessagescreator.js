@@ -24,7 +24,7 @@ function createGetConversationMessages (lib, mylib) {
     if (!ok.ok) {
       return ok.val;
     }
-    (new FindConversationJob(this.destroayble, this.conversationid)).go().then(
+    (new FindConversationJob(this.destroyable, this.conversationid)).go().then(
       this.onConversation.bind(this),
       this.reject.bind(this)
     );

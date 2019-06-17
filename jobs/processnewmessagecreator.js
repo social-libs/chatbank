@@ -18,14 +18,15 @@ function createProcessNewMessageJob (lib, mylib) {
     this.receiverid = null;
     this.conversationid = null;
     this.senderid = null;
+    JobOnBank.prototype.destroy.call(this);
   };
   ProcessNewMessageJob.prototype.go = function () {
-    var ok = this.okToGo();
+    var ok = this.okToGo(), temp;
     if (!ok.ok) {
       return ok.val;
     }
     if (this.receiverid) {
-      qlib.promise2defer((new mylib.ProcessNewPeer2PeerMessageJob(this.destroayble, this.senderid, this.receiverid, this.contents)).go());
+      qlib.promise2defer((new mylib.ProcessNewPeer2PeerMessageJob(this.destroyable, this.senderid, this.receiverid, this.contents)).go(), this);
       return ok.val;
     }
     return ok.val;

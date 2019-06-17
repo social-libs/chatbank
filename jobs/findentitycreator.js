@@ -19,7 +19,7 @@ function createFindEntityJob (lib, mylib) {
     if (!ok.ok) {
       return ok.val;
     }
-    qlib.promise2defer(this.destroayble[this.entityCollectionName].get(this.entityid));
+    qlib.promise2defer(this.destroyable[this.entityCollectionName].safeGet(this.entityid, null), this);
     return ok.val;
   };
 
