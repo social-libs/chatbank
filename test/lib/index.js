@@ -1,6 +1,38 @@
+function propexistencechecker (thingy, propname) {
+  if (!(propname in thingy)) {
+    console.error(thingy);
+    throw new Error(propname+'does not exist in the object');
+  }
+}
+function checkPropertiesOn (thingy, propnamearry) {
+  if (!lib.isVal(thingy)) {
+    console.error(thingy);
+    throw new Error('Bad Thingy');
+  }
+  if (!lib.isArray(propnamearry)) {
+    throw new Error('Bad property name array');
+  }
+  propnamearry.forEach(propexistencechecker.bind(null, thingy));
+}
+function onConversationNotification (convnotf) {
+  //console.log('onConversationNotification', convnotf);
+  checkPropertiesOn(convnotf, ['id', 'affected', 'lastmessage']);
+  if (convnotf.lastmessage) {
+    checkPropertiesOn(convnotf.lastmessage, ['from', 'message', 'created', 'seen']);
+  }
+  setGlobal('LastConversationNotified', convnotf);
+}
+function onMessageNotification (messnotf) {
+  //console.log('onMessageNotification', messnotf);
+  checkPropertiesOn(messnotf, ['conversationid', 'affected', 'message']);
+  checkPropertiesOn(messnotf.message, ['from', 'message', 'created', 'seen']);
+  setGlobal('LastMessageNotified', messnotf);
+}
+function bankFromName (bankname) {
+  return getGlobal(bankname || 'Bank');
+}
 function attachToBank (bank) {
-  bank.conversationsDefer.promise.then(null, null, console.log.bind(console, 'New Conversation Notification'));
-  bank.messagesDefer.promise.then(null, null, console.log.bind(console, 'New Message Notification'));
+  bank.conversationNotification.then(null, null, onConversationNotification);
 }
 function createBank (name, initiallyemptydb) {
   var d = q.defer();
@@ -13,27 +45,12 @@ function createBank (name, initiallyemptydb) {
   return d.promise;
 }
 
-function pushMessage (message, bankname) {
-  bankname = bankname || 'Bank';
-  var bank = getGlobal(bankname);
-  return (new bank.Jobs.PushMessageJob(bank, message)).go();
-}
-
-function processNewMessage (message, from, to, togroup, bankname) {
-  bankname = bankname || 'Bank';
-  var bank = getGlobal(bankname);
-  return (new bank.Jobs.ProcessNewMessageJob(bank, from, togroup, to, message)).go();
-}
-
-function createNewChatGroup (creator, bankname) {
-  bankname = bankname || 'Bank';
-  var bank = getGlobal(bankname);
-  return (new bank.Jobs.NewChatGroupJob(bank, creator)).go();
-}
-
-module.exports = {
+var ret = {
+  checkPropertiesOn: checkPropertiesOn,
   createBank: createBank,
-  pushMessage: pushMessage,
-  processNewMessage: processNewMessage,
-  createNewChatGroup: createNewChatGroup
+  bankFromName: bankFromName
 };
+require('./jobs.js')(ret);
+require('./bank.js')(ret);
+module.exports = ret;
+

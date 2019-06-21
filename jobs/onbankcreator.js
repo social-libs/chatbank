@@ -8,7 +8,12 @@ function createJobOnBank (lib, jobondestroyablelib, mylib) {
   }
   lib.inherit(JobOnBank, JobOnDestroyableBase);
   JobOnBank.prototype._destroyableOk = function () {
-    return this.destroyable && this.destroyable.users;
+    return this.destroyable
+      && this.destroyable.users
+      && this.destroyable.conversations
+      && this.destroyable.messages
+      && this.destroyable.conversationNotification
+      ;
   };
 
   mylib.JobOnBank = JobOnBank;

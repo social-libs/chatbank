@@ -20,13 +20,62 @@ function createLib (execlib, leveldblib, jobondestroyablelib) {
     return ret;
   }
 
+  function Event2Defer () {
+    this.evnt = new lib.HookCollection();
+    this.defer = q.defer();
+    this.listener = this.evnt.attach(this.defer.notify.bind(this.defer));
+  }
+  Event2Defer.prototype.destroy = function () {
+    if (this.listener) {
+      this.listener.destroy();
+    }
+    this.listener = null;
+    if (this.defer) {
+      this.defer.resolve(true);
+    }
+    this.defer = null;
+    if (this.evnt) {
+      this.evnt.destroy();
+    }
+    this.evnt = null;
+  };
+  Event2Defer.prototype.fire = function () {
+    if (!this.evnt) {
+      return;
+    }
+    return this.evnt.fire.apply(this.evnt, arguments);
+  };
+  Event2Defer.prototype.attach = function (cb) {
+    if (!this.evnt) {
+      return {
+        destroy: lib.dummyFunc
+      };
+    }
+    return this.evnt.attach(cb);
+  };
+  Event2Defer.prototype.attachForSingleShot = function (cb) {
+    if (!this.evnt) {
+      return {
+        destroy: lib.dummyFunc
+      };
+    }
+    return this.evnt.attachForSingleShot(cb);
+  };
+  Event2Defer.prototype.then = function (a, b, c) {
+    if (!this.defer) {
+      if (lib.isFunction(b)) {
+        b(new lib.Error('ALREADY_DESTROYED', 'Event2Defer is already destroyed'));
+      }
+      return;
+    }
+    return this.defer.promise.then(a, b, c);
+  };
   function ChatBank (prophash) {
     var path;
     this.users = null;
     this.conversations = null;
     this.messages = null;
-    this.conversationsDefer = q.defer();
-    this.messagesDefer = q.defer();
+    this.conversationNotification = new Event2Defer();
     this.jobs = new qlib.JobCollection();
     path = prophash ? (prophash.path || '.') : '.';
     q.all([
@@ -62,18 +111,14 @@ function createLib (execlib, leveldblib, jobondestroyablelib) {
       this.jobs.destroy();
     }
     this.jobs = null;
-    if (this.messagesDefer) {
-      this.messagesDefer.resolve(true);
+    if (this.conversationNotification) {
+      this.conversationNotification.destroy();
     }
-    this.messagesDefer = null;
+    this.conversationNotification = null;
     if (this.messages) {
       this.messages.destroy();
     }
     this.messages = null;
-    if (this.conversationsDefer) {
-      this.conversationsDefer.resolve(true);
-    }
-    this.conversationsDefer = null;
     if (this.conversations) {
       this.conversations.destroy();
     }
@@ -99,6 +144,18 @@ function createLib (execlib, leveldblib, jobondestroyablelib) {
   };
   ChatBank.prototype.processNewMessage = function (from, togroup, to, message) {
     return this.jobs.run('.', new this.Jobs.ProcessNewMessageJob(this, from, togroup, to, message));
+  };
+  ChatBank.prototype.createNewGroup = function (creator) {
+    return this.jobs.run('.', new this.Jobs.NewChatGroupJob(this, creator));
+  };
+  ChatBank.prototype.addUserToGroup = function (groupid, requesterid, userid) {
+    return this.jobs.run('.', new this.Jobs.AddNewUserToChatGroupJob(this, groupid, requesterid, userid));
+  };
+  ChatBank.prototype.removeUserFromGroup = function (groupid, requesterid, userid) {
+    return this.jobs.run('.', new this.Jobs.AddNewUserToChatGroupJob(this, groupid, requesterid, userid));
+  };
+  ChatBank.prototype.allConversationsOfUser = function (userid) {
+    return (new this.Jobs.AllConversationsOfUserJob(this, userid)).go();
   };
   ChatBank.prototype.Jobs = jobs;
 

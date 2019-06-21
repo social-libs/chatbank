@@ -29,6 +29,9 @@ function createProcessNewMessageJob (lib, mylib) {
       qlib.promise2defer((new mylib.ProcessNewPeer2PeerMessageJob(this.destroyable, this.senderid, this.receiverid, this.contents)).go(), this);
       return ok.val;
     }
+    if (this.conversationid) {
+      qlib.promise2defer((new mylib.ProcessNewPeer2GroupMessageJob(this.destroyable, this.senderid, this.conversationid, this.contents)).go(), this);
+    }
     return ok.val;
   };
 

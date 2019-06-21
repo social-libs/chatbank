@@ -16,8 +16,13 @@ function createJobs (lib, jobondestroyablelib) {
   require('./findmessagecreator')(lib, ret);
   require('./getconversationmessagescreator')(lib, ret);
   require('./processnewpeer2peermessagecreator')(lib, ret);
+  require('./processnewpeer2groupmessagecreator')(lib, ret);
   require('./processnewmessagecreator')(lib, ret);
   require('./newchatgroupcreator')(lib, ret);
+  require('./alterusersonchatgroupcreator')(lib, ret);
+  require('./addusertochatgroupcreator')(lib, ret);
+  require('./removeuserfromchatgroupcreator')(lib, ret);
+  require('./allconversationsofusercreator')(lib, ret);
 
   return ret;
 }

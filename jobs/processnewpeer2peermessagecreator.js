@@ -61,7 +61,6 @@ function createProcessNewPeer2PeerMessage (lib, mylib) {
     return ok.val;
   };
   ProcessNewPeer2PeerMessageJob.prototype.onGetCombo = function (combo) {
-    console.log('onGetCombo', combo);
     var jobs;
     if (!this.okToProceed()) {
       return;
@@ -109,13 +108,19 @@ function createProcessNewPeer2PeerMessage (lib, mylib) {
     if (!this.okToProceed()) {
       return;
     }
-    if (this.conversationinitiated) {
-      this.destroyable.conversationsDefer.notify(this.conversation);
-    }
+    this.destroyable.conversationNotification.fire({
+      id: this.conversationid,
+      affected: [this.senderid, this.receiverid],
+      mids: this.conversation.mids.slice(-2),
+      lastmessage: this.conversation.lastm
+    });
+    /*
     this.resolve(lib.extend({}, this.message, {
       affected: [this.senderid, this.receiverid],
       conversationid: this.conversationid
     }));
+    */
+    this.resolve(true);
   };
 
   mylib.ProcessNewPeer2PeerMessageJob = ProcessNewPeer2PeerMessageJob;

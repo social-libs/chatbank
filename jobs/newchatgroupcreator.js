@@ -6,9 +6,13 @@ function createNewChatGroupJob (lib, mylib) {
   function NewChatGroupJob (bank, creatorid, defer) {
     JobOnBank.call(this, bank, defer);
     this.creatorid = creatorid;
+    this.conversationid = null;
+    this.conversation = null;
   }
   lib.inherit(NewChatGroupJob, JobOnBank);
   NewChatGroupJob.prototype.destroy = function () {
+    this.conversation = null;
+    this.conversationid = null;
     this.creatorid = null;
     JobOnBank.prototype.destroy.call(this);
   };
@@ -29,9 +33,41 @@ function createNewChatGroupJob (lib, mylib) {
     );
     return ok.val;
   };
-  NewChatGroupJob.prototype.onCreated = function (conv) {
-    console.log('conv', conv);
-    this.resolve(conv[0]);
+  NewChatGroupJob.prototype.onCreated = function (convarry) {
+    if (!this.okToProceed()) {
+      return;
+    }
+    this.conversationid = convarry[0];
+    this.conversation = convarry[1];
+    (new this.destroyable.Jobs.FindUserJob(this.destroyable, this.creatorid)).go().then(
+      this.onCreator.bind(this),
+      this.reject.bind(this)
+    );
+  };
+  NewChatGroupJob.prototype.onCreator = function (creator) {
+    if (!this.okToProceed()) {
+      return;
+    }
+    creator = creator || {
+      cids: []
+    };
+    creator.cids.push(this.conversationid);
+    (new this.destroyable.Jobs.PutUserJob(this.destroyable, this.creatorid, creator)).go().then(
+      this.onCreatorAltered.bind(this),
+      this.reject.bind(this)
+    );
+  };
+  NewChatGroupJob.prototype.onCreatorAltered = function (creatorarry) {
+    if (!this.okToProceed()) {
+      return;
+    }
+    this.destroyable.conversationNotification.fire({
+      id: this.conversationid,
+      affected: this.conversation.afu,
+      mids: this.conversation.mids.slice(-2),
+      lastmessage: this.conversation.lastm
+    });
+    this.resolve(this.conversationid);
   };
 
   mylib.NewChatGroupJob = NewChatGroupJob;
