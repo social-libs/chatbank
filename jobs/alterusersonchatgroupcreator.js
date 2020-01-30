@@ -41,6 +41,7 @@ function createAlterUsersOnChatGroupJob (lib, mylib) {
       return;
     }
     if (conversation.afu.indexOf(this.changerid)<0) {
+      console.error(conversation.afu, 'vs', this.changerid);
       this.reject(new lib.Error('CHANGE_INITIATOR_NOT_A_MEMBER', this.changerid));
       return;
     }

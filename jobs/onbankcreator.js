@@ -1,7 +1,7 @@
-function createJobOnBank (lib, jobondestroyablelib, mylib) {
+function createJobOnBank (lib, mylib) {
   'use strict';
 
-  var JobOnDestroyableBase = jobondestroyablelib.JobOnDestroyableBase;
+  var JobOnDestroyableBase = lib.qlib.JobOnDestroyableBase;
 
   function JobOnBank (bank, defer) {
     JobOnDestroyableBase.call(this, bank, defer);

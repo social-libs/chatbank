@@ -38,15 +38,6 @@ var testlib = require('./lib'),
     }
   };
 
-function checkConversations (convs) {
-  //console.log(convs[1]);
-  console.log(convs.length, 'conversations');
-  console.log('first one', convs[0]);
-  console.log('last one', convs[convs.length-1]);
-  console.log(floodFromDescriptor(flooddescs.ra2andra));
-  console.log(ConversationsOfUser_LastConversationNotified);
-}
-
 describe('Basic Test', function () {
   loadMochaIntegration('social_chatbanklib');
   it('Create Bank', function () {
@@ -55,42 +46,33 @@ describe('Basic Test', function () {
   it('Initiate P2P conversation to luka', function () {
     return p2pmessage('andra', 'luka', 'blah', 'ConversationsOfUser');
   });
-  /*
-  it('Initiate P2P conversation to ra', function () {
-    return p2pmessage('andra', 'ra', 'blah');
-  });
-  it('Start luka=>andra flood', function () {
-    this.timeout(1e4);
-    startMessageFlood('luka', 'andra', 'test#1');
-    return q.delay(5000, true);
-  });
-  it('Stop luka=>andra flood', function () {
-    this.timeout(1e4);
-    stopFlood('luka', 'andra', 'test#1');
-    return q.delay(50, true);
-  });
-  it('LastConversationNotified?', function () {
-    console.log(LastConversationNotified);
-  });
-  */
   it('Start floods', function () {
-    //startP2PMessageFlood(flooddescs.ra2andra);
+    startP2PMessageFlood(flooddescs.luka2andra);
+    startP2PMessageFlood(flooddescs.ra2andra);
     //startP2PConversationFlood(flooddescs.luka2andra);
-    //startGroupMessageFlood(flooddescs.ra2group);
-    startGroupConversationFlood(flooddescs.ra2manygroups);
-    return q.delay(250, true);
+    startGroupMessageFlood(flooddescs.ra2group);
+    //startGroupConversationFlood(flooddescs.ra2manygroups);
+    return q.delay(150, true);
   });
   it('All conversations for andra', function () {
     //return qlib.promise2console(banklib.allConversationsOfUser('andra'), 'allConversationsOfUser andra');
-    return banklib.allConversationsOfUser('andra', 'ConversationsOfUser').then(
-      checkConversations
-    );
+    return setGlobal('Conversations', banklib.allConversationsOfUser('andra', 'ConversationsOfUser'));
   });
+  it('Messages of random Conversation', function () {
+    var cc = Conversations.length,
+      randind = Math.floor(cc*Math.random()),
+      randcnv = Conversations[randind],
+      randcnvid = randcnv[0];
+
+    console.log(cc, 'conversations, random cnv id', randcnvid);
+    return qlib.promise2console(banklib.messagesOfConversation('andra', randcnvid, null, 5, 'ConversationsOfUser'), 'messagesOfConversation['+randcnvid+']');
+  });
+
   it('Stop floods', function () {
-    //stopFlood(flooddescs.ra2andra);
-    //stopFlood(flooddescs.luka2andra);
-    //stopFlood(flooddescs.ra2group);
-    stopFlood(flooddescs.ra2manygroups);
+    stopFlood(flooddescs.luka2andra);
+    stopFlood(flooddescs.ra2andra);
+    stopFlood(flooddescs.ra2group);
+    //stopFlood(flooddescs.ra2manygroups);
   });
 });
 

@@ -21,12 +21,17 @@ function createJobsLib (mylib) {
   function allConversationsOfUser (userid, bankname) {
     return bankFromName(bankname).allConversationsOfUser(userid);
   }
+
+  function messagesOfConversation (userid, conversationid, oldestmessageid, howmany, bankname) {
+    return bankFromName(bankname).messagesOfConversation(userid, conversationid, oldestmessageid, howmany);
+  }
   mylib.bank = {
     processNewMessage: processNewMessage,
     createNewChatGroup: createNewChatGroup,
     addNewUser2ChatGroup: addNewUser2ChatGroup,
     removeUserFromChatGroup: removeUserFromChatGroup,
-    allConversationsOfUser: allConversationsOfUser
+    allConversationsOfUser: allConversationsOfUser,
+    messagesOfConversation: messagesOfConversation
   };
 }
 

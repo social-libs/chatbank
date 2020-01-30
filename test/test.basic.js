@@ -11,7 +11,7 @@ describe('Basic Test', function () {
     return qlib.promise2console(BasicBank.processNewMessage('luka', null, 'andra', 'wut?'), 'P2P');
   });
   it('Create a new group', function () {
-    return qlib.promise2console(BasicBank.createNewGroup('luka'), 'New Group');
+    return qlib.promise2console(BasicBank.createNewGroup('luka', '1'), 'New Group');
   });
   it('Creator sends a message to 1-user group', function () {
     return qlib.promise2console(BasicBank.processNewMessage('luka', BasicBank_LastConversationNotified.id, null, 'There you go!'), 'Creator send a message');

@@ -1,7 +1,8 @@
 function createAllConversationsOfUserJob (lib, mylib) {
   'use strict';
 
-  var qlib = lib.qlib,
+  var q = lib.q,
+    qlib = lib.qlib,
     JobOnBank = mylib.JobOnBank;
 
   function AllConversationsOfUserJob (bank, userid, defer) {
@@ -12,7 +13,7 @@ function createAllConversationsOfUserJob (lib, mylib) {
   AllConversationsOfUserJob.prototype.destroy = function () {
     this.userid = null;
     JobOnBank.prototype.destroy.call(this);
-  }
+  };
   AllConversationsOfUserJob.prototype.go = function () {
     var ok = this.okToGo();
     if (!ok.ok) {
@@ -49,6 +50,9 @@ function createAllConversationsOfUserJob (lib, mylib) {
     var ret = q(arry);
     //conv.mids = conv.mids.slice(-2);
     arry[1] = lib.pickExcept(conv, ['mids']);
+    if (arry[1].lastm) {
+      arry[1].lastm.id = conv.mids[conv.mids.length-1];
+    }
     arry = null;
     return ret;
   }

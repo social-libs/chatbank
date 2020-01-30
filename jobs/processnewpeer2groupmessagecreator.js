@@ -86,7 +86,10 @@ function createProcessNewPeer2GroupMessage (lib, mylib) {
       mids: convarry[1].mids.slice(-2),
       lastmessage: convarry[1].lastm
     });
-    this.resolve(true);
+    this.resolve({
+      id: convarry[0],
+      messageid: this.messageid
+    });
   };
 
 

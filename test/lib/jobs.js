@@ -12,9 +12,9 @@ function createJobsLib (mylib) {
     return (new bank.Jobs.ProcessNewMessageJob(bank, from, togroup, to, message)).go();
   }
 
-  function createNewChatGroup (creator, bankname) {
+  function createNewChatGroup (creator, groupname, bankname) {
     var bank = bankFromName(bankname);
-    return (new bank.Jobs.NewChatGroupJob(bank, creator)).go();
+    return (new bank.Jobs.NewChatGroupJob(bank, creator, groupname)).go();
   }
 
   function addNewUser2ChatGroup (chatgroupid, changer, newuser, bankname) {

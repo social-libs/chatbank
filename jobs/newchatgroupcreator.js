@@ -3,9 +3,10 @@ function createNewChatGroupJob (lib, mylib) {
 
   var JobOnBank = mylib.JobOnBank;
 
-  function NewChatGroupJob (bank, creatorid, defer) {
+  function NewChatGroupJob (bank, creatorid, groupname, defer) {
     JobOnBank.call(this, bank, defer);
     this.creatorid = creatorid;
+    this.groupname = groupname;
     this.conversationid = null;
     this.conversation = null;
   }
@@ -21,8 +22,17 @@ function createNewChatGroupJob (lib, mylib) {
     if (!ok.ok) {
       return ok.val;
     }
+    if (!this.creatorid) {
+      this.reject(new lib.Error('NO_CREATOR_ID_FOR_NEW_CHAT_GROUP', 'Creator id has to be specified in order to create a new Chat Group'));
+      return ok.val;
+    }
+    if (!this.groupname) {
+      this.reject(new lib.Error('NO_GROUP_NAME_FOR_NEW_CHAT_GROUP', 'A Group Name has to be specified in order to create a new Chat Group'));
+      return ok.val;
+    }
     (new this.destroyable.Jobs.PutConversationJob(this.destroyable, lib.uid(), {
       cby: this.creatorid,
+      name: this.groupname,
       cat: Date.now(),
       afu: [this.creatorid],
       mids: [],

@@ -1,10 +1,11 @@
-function createLib (execlib, leveldblib, jobondestroyablelib) {
+function createLib (execlib, leveldblib) {
   'use strict';
 
   var lib = execlib.lib,
     q = lib.q,
     qlib = lib.qlib,
-    jobs = require('./jobs')(lib, jobondestroyablelib);
+    utils = require('./utils')(lib),
+    jobs = require('./jobs')(lib, utils);
 
   function startAssoc (hash) {
     var d = q.defer(), ret = d.promise;
@@ -100,7 +101,7 @@ function createLib (execlib, leveldblib, jobondestroyablelib) {
         dbcreationoptions: {
           valueEncoding: 'json'
         }
-      }),
+      })
     ], 'createDBs').then(
       this.onDBsCreated.bind(this, prophash ? prophash.starteddefer : null),
       prophash ? (prophash.starteddefer || null) : null
@@ -145,8 +146,8 @@ function createLib (execlib, leveldblib, jobondestroyablelib) {
   ChatBank.prototype.processNewMessage = function (from, togroup, to, message) {
     return this.jobs.run('.', new this.Jobs.ProcessNewMessageJob(this, from, togroup, to, message));
   };
-  ChatBank.prototype.createNewGroup = function (creator) {
-    return this.jobs.run('.', new this.Jobs.NewChatGroupJob(this, creator));
+  ChatBank.prototype.createNewGroup = function (creator, groupname) {
+    return this.jobs.run('.', new this.Jobs.NewChatGroupJob(this, creator, groupname));
   };
   ChatBank.prototype.addUserToGroup = function (groupid, requesterid, userid) {
     return this.jobs.run('.', new this.Jobs.AddNewUserToChatGroupJob(this, groupid, requesterid, userid));
@@ -157,10 +158,14 @@ function createLib (execlib, leveldblib, jobondestroyablelib) {
   ChatBank.prototype.allConversationsOfUser = function (userid) {
     return (new this.Jobs.AllConversationsOfUserJob(this, userid)).go();
   };
+  ChatBank.prototype.messagesOfConversation = function (userid, conversationid, oldestmessageid, howmany) {
+    return (new this.Jobs.MessagesOfConversationJob(this, userid, conversationid, oldestmessageid, howmany)).go();
+  };
   ChatBank.prototype.Jobs = jobs;
 
   return {
-    Bank: ChatBank
+    Bank: ChatBank,
+    utils: utils
   };
 }
 

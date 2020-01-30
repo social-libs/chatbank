@@ -18,7 +18,7 @@ describe('Basic Test', function () {
     return qlib.promise2console(jobslib.processNewMessage("that's wut I sed", 'andra', 'luka', null, 'JobsBank'), 'processNewPeer2PeerMessage');
   });
   it('Create new Chat Group', function () {
-    return qlib.promise2console(jobslib.createNewChatGroup('andra', 'JobsBank'), 'createNewChatGroup');
+    return qlib.promise2console(jobslib.createNewChatGroup('andra', '1', 'JobsBank'), 'createNewChatGroup');
   });
   it('Add a new User to Chat Group', function () {
     return qlib.promise2console(jobslib.addNewUser2ChatGroup(JobsBank_LastConversationNotified.id, 'andra', 'luka', 'JobsBank'), 'addNewUser2ChatGroup');

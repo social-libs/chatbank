@@ -10,6 +10,7 @@ function checkPropertiesOn (thingy, propnamearry) {
     throw new Error('Bad Thingy');
   }
   if (!lib.isArray(propnamearry)) {
+    console.error(propnamearry, 'is not an Array');
     throw new Error('Bad property name array');
   }
   propnamearry.forEach(propexistencechecker.bind(null, thingy));

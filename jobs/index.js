@@ -1,10 +1,10 @@
-function createJobs (lib, jobondestroyablelib) {
+function createJobs (lib, utils) {
   'use strict';
 
   var q = lib.q,
     qlib = lib.qlib,
     ret = {};
-  require('./onbankcreator')(lib, jobondestroyablelib, ret),
+  require('./onbankcreator')(lib, ret),
   require('./putentitycreator')(lib, ret);
   require('./putusercreator')(lib, ret);
   require('./putconversationcreator')(lib, ret);
@@ -23,6 +23,7 @@ function createJobs (lib, jobondestroyablelib) {
   require('./addusertochatgroupcreator')(lib, ret);
   require('./removeuserfromchatgroupcreator')(lib, ret);
   require('./allconversationsofusercreator')(lib, ret);
+  require('./messagesofconversationcreator')(lib, ret, utils);
 
   return ret;
 }

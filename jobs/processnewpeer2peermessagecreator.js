@@ -110,6 +110,7 @@ function createProcessNewPeer2PeerMessage (lib, mylib) {
     }
     this.destroyable.conversationNotification.fire({
       id: this.conversationid,
+      p2p: true,
       affected: [this.senderid, this.receiverid],
       mids: this.conversation.mids.slice(-2),
       lastmessage: this.conversation.lastm
@@ -120,7 +121,7 @@ function createProcessNewPeer2PeerMessage (lib, mylib) {
       conversationid: this.conversationid
     }));
     */
-    this.resolve(true);
+    this.resolve({id: this.conversationid, messageid: this.messageid});
   };
 
   mylib.ProcessNewPeer2PeerMessageJob = ProcessNewPeer2PeerMessageJob;
