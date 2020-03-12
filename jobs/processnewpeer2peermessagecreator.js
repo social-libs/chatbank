@@ -1,4 +1,4 @@
-function createProcessNewPeer2PeerMessage (lib, mylib) {
+function createProcessNewPeer2PeerMessage (lib, mylib, utils) {
   'use strict';
 
   var q = lib.q,
@@ -43,7 +43,7 @@ function createProcessNewPeer2PeerMessage (lib, mylib) {
     if (!ok.ok) {
       return ok.val;
     }
-    this.conversationid = [this.senderid, this.receiverid].sort().join(zeroString);
+    this.conversationid = utils.zeroStringJoinSorted(this.senderid, this.receiverid);
     q.all([
       (new this.destroyable.Jobs.FindUserJob(this.destroyable, this.senderid)).go(),
       (new this.destroyable.Jobs.FindUserJob(this.destroyable, this.receiverid)).go(),
@@ -52,6 +52,7 @@ function createProcessNewPeer2PeerMessage (lib, mylib) {
         from: this.senderid,
         message: this.contents,
         created: Date.now(),
+        rcvd: null,
         seen: null
       })).go()
     ]).then(
@@ -75,10 +76,7 @@ function createProcessNewPeer2PeerMessage (lib, mylib) {
     this.conversation = combo[2];
     if (!this.conversation) {
       this.conversationinitiated = true;
-      this.conversation = {
-        mids: [],
-        lastm: null
-      };
+      this.conversation = utils.brandNewConversation(this.senderid, this.receiverid);
     }
     this.messageid = combo[3][0];
     this.message = combo[3][1];
@@ -96,6 +94,7 @@ function createProcessNewPeer2PeerMessage (lib, mylib) {
     }
     this.conversation.mids.push(this.messageid);
     this.conversation.lastm = this.message;
+    utils.bumpNotRead(this.conversation, this.senderid);
     jobs.push(
       (new this.destroyable.Jobs.PutConversationJob(this.destroyable, this.conversationid, this.conversation)).go()
     );
@@ -113,6 +112,7 @@ function createProcessNewPeer2PeerMessage (lib, mylib) {
       p2p: true,
       affected: [this.senderid, this.receiverid],
       mids: this.conversation.mids.slice(-2),
+      nr: this.conversation.nr,
       lastmessage: this.conversation.lastm
     });
     /*

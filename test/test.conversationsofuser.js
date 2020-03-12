@@ -5,21 +5,22 @@
  */
 var testlib = require('./lib'),
   banklib = testlib.bank,
+  _bankName1 = 'ConversationsOfUser',
   flooddescs = {
     luka2andra: {
-      bankname: 'ConversationsOfUser',
+      bankname: _bankName1,
       from: 'luka',
       to: 'andra',
       template: 'test'
     },
     ra2andra: {
-      bankname: 'ConversationsOfUser',
+      bankname: _bankName1,
       from: 'ra',
       to: 'andra',
       template: 'test'
     },
     ra2group: {
-      bankname: 'ConversationsOfUser',
+      bankname: _bankName1,
       from: 'ra',
       to: {
         groupname: 'raG',
@@ -28,7 +29,7 @@ var testlib = require('./lib'),
       template: 'grouptest'
     },
     ra2manygroups: {
-      bankname: 'ConversationsOfUser',
+      bankname: _bankName1,
       from: 'ra',
       to: {
         groupname: 'virtualraG',
@@ -38,22 +39,22 @@ var testlib = require('./lib'),
     }
   };
 
-function checkConversations (convs) {
+function checkConversations (username, convs) {
   //console.log(convs[1]);
-  console.log(convs.length, 'conversations');
+  console.log(convs.length, 'conversations for', username);
   console.log('first one', convs[0]);
   console.log('last one', convs[convs.length-1]);
-  console.log(floodFromDescriptor(flooddescs.ra2andra));
+  console.log(floodFromDescriptor(flooddescs.ra2manygroups))//ra2andra));
   console.log(ConversationsOfUser_LastConversationNotified);
 }
 
 describe('Basic Test', function () {
   loadMochaIntegration('social_chatbanklib');
   it('Create Bank', function () {
-    return createGlobalChatBank('ConversationsOfUser', true);
+    return createGlobalChatBank(_bankName1, true);
   });
   it('Initiate P2P conversation to luka', function () {
-    return p2pmessage('andra', 'luka', 'blah', 'ConversationsOfUser');
+    return p2pmessage('andra', 'luka', 'blah', _bankName1);
   });
   /*
   it('Initiate P2P conversation to ra', function () {
@@ -82,8 +83,8 @@ describe('Basic Test', function () {
   });
   it('All conversations for andra', function () {
     //return qlib.promise2console(banklib.allConversationsOfUser('andra'), 'allConversationsOfUser andra');
-    return banklib.allConversationsOfUser('andra', 'ConversationsOfUser').then(
-      checkConversations
+    return banklib.allConversationsOfUser('andra', _bankName1).then(
+      checkConversations.bind(null, 'andra')
     );
   });
   it('Stop floods', function () {

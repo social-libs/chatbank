@@ -22,8 +22,20 @@ function createJobsLib (mylib) {
     return bankFromName(bankname).allConversationsOfUser(userid);
   }
 
+  function initiateConversationsOfUserForUsers (userid, userids, bankname) {
+    return bankFromName(bankname).initiateConversationsOfUserForUsers(userid, userids);
+  }
+
   function messagesOfConversation (userid, conversationid, oldestmessageid, howmany, bankname) {
     return bankFromName(bankname).messagesOfConversation(userid, conversationid, oldestmessageid, howmany);
+  }
+
+  function markMessageRcvd (userid, conversationid, messageid, bankname) {
+    return bankFromName(bankname).markMessageRcvd(userid, conversationid, messageid);
+  }
+
+  function markMessageSeen (userid, conversationid, messageid, bankname) {
+    return bankFromName(bankname).markMessageSeen(userid, conversationid, messageid);
   }
   mylib.bank = {
     processNewMessage: processNewMessage,
@@ -31,7 +43,10 @@ function createJobsLib (mylib) {
     addNewUser2ChatGroup: addNewUser2ChatGroup,
     removeUserFromChatGroup: removeUserFromChatGroup,
     allConversationsOfUser: allConversationsOfUser,
-    messagesOfConversation: messagesOfConversation
+    initiateConversationsOfUserForUsers: initiateConversationsOfUserForUsers,
+    messagesOfConversation: messagesOfConversation,
+    markMessageRcvd: markMessageRcvd,
+    markMessageSeen: markMessageSeen
   };
 }
 

@@ -1,10 +1,9 @@
-function createMessagesOfConversationJob (lib, mylib, utils) {
+function createMessagesOfConversationJob (lib, mylib, utilslib, utils) {
   'use strict';
 
   var q = lib.q,
     qlib = lib.qlib,
-    JobOnBank = mylib.JobOnBank,
-    zeroString = String.fromCharCode(0);
+    JobOnBank = mylib.JobOnBank;
 
   function MessagesOfConversationJob (bank, userid, conversationid, oldestmessageid, howmany, defer) {
     JobOnBank.call(this, bank);
@@ -39,7 +38,7 @@ function createMessagesOfConversationJob (lib, mylib, utils) {
       this.resolve([]);
       return;
     }
-    if(!convhasuser(conv, this.conversationid, this.userid)) {
+    if(!utils.conversationhasuser(conv, this.conversationid, this.userid)) {
       this.resolve([]);
       return;
     }
@@ -68,26 +67,11 @@ function createMessagesOfConversationJob (lib, mylib, utils) {
   };
   MessagesOfConversationJob.prototype.askForMessage = function (isgroup, mid) {
     var ret = (new this.destroyable.Jobs.FindMessageJob(this.destroyable, mid)).go().then(
-      utils.userandmidder.bind(null, isgroup, this.userid, mid)
+      utilslib.msguserandmidder.bind(null, isgroup, this.userid, mid)
     );
     isgroup = null;
     return ret;
   };
-
-  function convhasuser (conv, convid, userid) {
-    if (lib.isArray(conv.afu)) {
-      return conv.afu.indexOf(userid)>=0;
-    }
-    return zerojoinedstringhas (convid, userid);
-  }
-
-  function zerojoinedstringhas (zjs, str) {
-    var sp = zjs.split(zeroString);
-    if (!(lib.isArray(sp) && sp.length===2)) {
-      return false;
-    }
-    return sp.indexOf(str)>=0;
-  }
 
 
   mylib.MessagesOfConversationJob = MessagesOfConversationJob;

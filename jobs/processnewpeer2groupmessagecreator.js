@@ -1,14 +1,9 @@
-function createProcessNewPeer2GroupMessage (lib, mylib) {
+function createProcessNewPeer2GroupMessage (lib, mylib, utils) {
   'use strict';
 
   var q = lib.q,
     qlib = lib.qlib,
-    JobOnBank = mylib.JobOnBank,
-    FindUserJob = mylib.FindUserJob,
-    FindConversationJob = mylib.FindConversationJob,
-    PutUserJob = mylib.PutUserJob,
-    PutConversationJob = mylib.PutConversationJob,
-    PushMessageJob = mylib.PushMessageJob;
+    JobOnBank = mylib.JobOnBank;
 
   function ProcessNewPeer2GroupMessageJob (bank, senderid, conversationid, contents, defer) {
     JobOnBank.call(this, bank, defer);
@@ -53,12 +48,7 @@ function createProcessNewPeer2GroupMessage (lib, mylib) {
       return;
     }
     this.conversation = conversation;
-    (new this.destroyable.Jobs.PushMessageJob(this.destroyable, {
-      from: this.senderid,
-      message: this.contents,
-      created: Date.now(),
-      seen: null
-    })).go().then(
+    (new this.destroyable.Jobs.PushMessageJob(this.destroyable, utils.brandNewGroupMessage(conversation, this.senderid, this.contents))).go().then(
       this.onMessagePut.bind(this),
       this.reject.bind(this)
     );
@@ -71,6 +61,7 @@ function createProcessNewPeer2GroupMessage (lib, mylib) {
     this.message = msgarry[1];
     this.conversation.mids.push(this.messageid);
     this.conversation.lastm = this.message;
+    utils.bumpNotRead(this.conversation, this.senderid);
     (new this.destroyable.Jobs.PutConversationJob(this.destroyable, this.conversationid, this.conversation)).go().then(
       this.onConversationPut.bind(this),
       this.reject.bind(this)
@@ -84,6 +75,7 @@ function createProcessNewPeer2GroupMessage (lib, mylib) {
       id: convarry[0],
       affected: convarry[1].afu,
       mids: convarry[1].mids.slice(-2),
+      nr: this.conversation.nr,
       lastmessage: convarry[1].lastm
     });
     this.resolve({
@@ -91,17 +83,6 @@ function createProcessNewPeer2GroupMessage (lib, mylib) {
       messageid: this.messageid
     });
   };
-
-
-  /*
-      (new this.destroyable.Jobs.PushMessageJob(this.destroyable, {
-        from: this.senderid,
-        message: this.contents,
-        created: Date.now(),
-        seen: null
-      })).go()
-  */
-
 
   mylib.ProcessNewPeer2GroupMessageJob = ProcessNewPeer2GroupMessageJob;
 }

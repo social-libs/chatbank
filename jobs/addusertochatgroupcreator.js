@@ -1,4 +1,4 @@
-function createAddNewUserToChatGroupJob (lib, mylib) {
+function createAddNewUserToChatGroupJob (lib, mylib, utils) {
   'use strict';
 
   var AlterUsersOnChatGroupJob = mylib.AlterUsersOnChatGroupJob;
@@ -20,7 +20,9 @@ function createAddNewUserToChatGroupJob (lib, mylib) {
   AddNewUserToChatGroupJob.prototype.alterGroupAffectedUsers = function (afu) {
     afu.push(this.userid);
   };
-
+  AddNewUserToChatGroupJob.prototype.alterGroupNotRead = function (nr) {
+    nr.push(utils.initialnotreader(this.userid));
+  };
 
   mylib.AddNewUserToChatGroupJob = AddNewUserToChatGroupJob;
 }

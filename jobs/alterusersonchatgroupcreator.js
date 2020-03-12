@@ -49,6 +49,7 @@ function createAlterUsersOnChatGroupJob (lib, mylib) {
       return;
     }
     this.alterGroupAffectedUsers(conversation.afu);
+    this.alterGroupNotRead(conversation.nr);
     this.conversation = conversation;
     (new this.destroyable.Jobs.FindUserJob(this.destroyable, this.userid)).go().then(
       this.onAffectedUser.bind(this),

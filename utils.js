@@ -1,18 +1,166 @@
+var zeroString = String.fromCharCode(0);
+
 function createUtils (lib) {
   'use strict';
 
-  function userandmidder (isgroup, myuserid, mid, msg) {
-    if (msg.from===myuserid) {
-      msg.from = null;
-    } else if(!isgroup) {
-      msg.from = '';
+  function zeroStringJoinSorted () {
+    return Array.prototype.slice.call(arguments).sort().join(zeroString);
+  }
+
+  function convhasuser (conv, convid, userid) {
+    if (lib.isArray(conv.afu)) {
+      return conv.afu.indexOf(userid)>=0;
     }
-    msg.id = mid;
-    return msg;
+    return zerojoinedstringhas (convid, userid);
+  }
+
+  function zerojoinedstringhas (zjs, str) {
+    var sp = zjs.split(zeroString);
+    if (!(lib.isArray(sp) && sp.length===2)) {
+      return false;
+    }
+    return sp.indexOf(str)>=0;
+  }
+
+  function initialnotreader (userid) {
+    return {
+      u: userid, nr: 0
+    };
+  }
+  function brandNewConversation () {
+    var users = Array.prototype.slice.call(arguments);
+    return {
+      mids: [],
+      lastm: null,
+      nr: users.map(initialnotreader)
+    };
+  }
+
+  function bumpNotRead (conv, senderid) {
+    var i, c;
+    if (!(conv && lib.isArray(conv.nr))) {
+      return;
+    }
+    for (i=0; i<conv.nr.length; i++) {
+      c = conv.nr[i];
+      if (c.u === senderid) {
+        continue;
+      }
+      c.nr++;
+    }
+  }
+
+  function userInNotRead (userid, nrs) {
+    var i, nr;
+    if (!lib.isArray(nrs)) {
+      return false;
+    }
+    for (i=0; i<nrs.length; i++) {
+      nr = nrs[i];
+      if (nr.u === userid) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function initialnotrcvd (userid) {
+    return {
+      u: userid, rcvd: null
+    };
+  }
+
+  function initialnotseen (userid) {
+    return {
+      u: userid, seen: null
+    };
+  }
+
+  function rcvseenbyer (result, afu) {
+    if (afu !== result.from) {
+      result.rcvdby.push(initialnotrcvd(afu));
+      result.seenby.push(initialnotseen(afu));
+    }
+    return result;
+  }
+  function brandNewGroupMessage (conv, senderid, contents) {
+    var ret = {
+      from: senderid,
+      message: contents,
+      created: Date.now(),
+      seen: null,
+      rcvdby: [],
+      seenby: []
+    };
+    if (!(conv && lib.isArray(conv.afu))) {
+      return ret;
+    }
+    return conv.afu.reduce(rcvseenbyer, ret);
+  }
+
+  function markMessageXBy (xname, msg, userid) { //xname === 'seen' || 'rcvd'
+    var i, xs, x;
+    if (!msg) {
+      return false;
+    }
+    xs = msg[xname+'by'];
+    if (!lib.isArray(xs)) {
+      return false;
+    }
+    for (i=0; i<xs.length; i++) {
+      x = xs[i];
+      if (x.u === userid) {
+        if (x[xname] === null) {
+          x[xname] = Date.now();
+          return true;
+        }
+        return false;
+      }
+    }
+    return false;
+  }
+  function markMessageRcvdBy (msg, userid) {
+    return markMessageXBy('rcvd', msg, userid);
+  }
+  function markMessageSeenBy (msg, userid) {
+    return markMessageXBy('seen', msg, userid);
+  }
+
+  function decNotReadOnConversationFor (conv, userid) {
+    var i, nrs, nr;
+    if (!conv) {
+      return null;
+    }
+    nrs = conv.nr;
+    if (!lib.isArray(nrs)) {
+      return null;
+    }
+    for (i=0; i<nrs.length; i++) {
+      nr = nrs[i];
+      if (nr.u !== userid) {
+        continue;
+      }
+      nr.nr--;
+      if (nr.nr<0) {
+        console.error('Not read Counter below zero', conv);
+        throw new lib.Error('NOTREAD_COUNTER_BELOW_ZERO', userid)
+      }
+      return nr.nr;
+    }
+    return null;
   }
 
   return {
-    userandmidder: userandmidder
+    zeroStringJoinSorted: zeroStringJoinSorted,
+    conversationhasuser: convhasuser,
+    initialnotreader: initialnotreader,
+    brandNewConversation: brandNewConversation,
+    bumpNotRead: bumpNotRead,
+    userInNotRead: userInNotRead,
+    brandNewGroupMessage: brandNewGroupMessage,
+    markMessageRcvdBy: markMessageRcvdBy,
+    markMessageSeenBy: markMessageSeenBy,
+    decNotReadOnConversationFor: decNotReadOnConversationFor
   };
 }
 

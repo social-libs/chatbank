@@ -1,11 +1,11 @@
-function createLib (execlib, leveldblib) {
+function createLib (execlib, utilslib, leveldblib) {
   'use strict';
 
   var lib = execlib.lib,
     q = lib.q,
     qlib = lib.qlib,
     utils = require('./utils')(lib),
-    jobs = require('./jobs')(lib, utils);
+    jobs = require('./jobs')(lib, utilslib, utils);
 
   function startAssoc (hash) {
     var d = q.defer(), ret = d.promise;
@@ -97,6 +97,7 @@ function createLib (execlib, leveldblib) {
       startArray({
         dbname: [path, 'messages'],
         initiallyemptydb: prophash ? prophash.initiallyemptydb : false,
+        startfromone: true,
         indexsize: 'huge',
         dbcreationoptions: {
           valueEncoding: 'json'
@@ -152,14 +153,26 @@ function createLib (execlib, leveldblib) {
   ChatBank.prototype.addUserToGroup = function (groupid, requesterid, userid) {
     return this.jobs.run('.', new this.Jobs.AddNewUserToChatGroupJob(this, groupid, requesterid, userid));
   };
+  ChatBank.prototype.createNewGroupWithMembers = function (creator, groupname, memberarry) {
+    return this.jobs.run('.', new this.Jobs.NewChatGroupWithMembersJob(this, creator, groupname, memberarry));
+  };
   ChatBank.prototype.removeUserFromGroup = function (groupid, requesterid, userid) {
     return this.jobs.run('.', new this.Jobs.AddNewUserToChatGroupJob(this, groupid, requesterid, userid));
   };
   ChatBank.prototype.allConversationsOfUser = function (userid) {
     return (new this.Jobs.AllConversationsOfUserJob(this, userid)).go();
   };
+  ChatBank.prototype.initiateConversationsOfUserForUsers = function (userid, userids) {
+    return (new this.Jobs.InitiateConversationsOfUserForUsersJob(this, userid, userids)).go();
+  };
   ChatBank.prototype.messagesOfConversation = function (userid, conversationid, oldestmessageid, howmany) {
     return (new this.Jobs.MessagesOfConversationJob(this, userid, conversationid, oldestmessageid, howmany)).go();
+  };
+  ChatBank.prototype.markMessageRcvd = function (userid, conversationid, messageid) {
+    return (new this.Jobs.MarkMessageRcvdJob(this, userid, conversationid, messageid)).go();
+  };
+  ChatBank.prototype.markMessageSeen = function (userid, conversationid, messageid) {
+    return (new this.Jobs.MarkMessageSeenJob(this, userid, conversationid, messageid)).go();
   };
   ChatBank.prototype.Jobs = jobs;
 

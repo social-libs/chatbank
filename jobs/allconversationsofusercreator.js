@@ -6,7 +6,7 @@ function createAllConversationsOfUserJob (lib, mylib) {
     JobOnBank = mylib.JobOnBank;
 
   function AllConversationsOfUserJob (bank, userid, defer) {
-    JobOnBank.call(this, bank);
+    JobOnBank.call(this, bank, defer);
     this.userid = userid;
   }
   lib.inherit(AllConversationsOfUserJob, JobOnBank);

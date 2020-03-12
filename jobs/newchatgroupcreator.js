@@ -1,4 +1,4 @@
-function createNewChatGroupJob (lib, mylib) {
+function createNewChatGroupJob (lib, mylib, utils) {
   'use strict';
 
   var JobOnBank = mylib.JobOnBank;
@@ -36,6 +36,7 @@ function createNewChatGroupJob (lib, mylib) {
       cat: Date.now(),
       afu: [this.creatorid],
       mids: [],
+      nr: [utils.initialnotreader(this.creatorid)],
       lastm: null
     })).go().then(
       this.onCreated.bind(this),
