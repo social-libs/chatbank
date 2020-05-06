@@ -15,6 +15,24 @@ function createRemoveUserFromChatGroupJob (lib, mylib) {
     arry.splice(ind, 1);
   }
 
+  function removeObjFromArry (arry, propname, propval) {
+    var ind, i, thingy;
+    if (!lib.isArray(arry)) {
+      return;
+    }
+    for (i=0; i<arry.length; i++) {
+      thingy = arry[i];
+      if (thingy && thingy[propname] === propval) {
+        ind = i;
+        break;
+      }
+    }
+    if (!lib.isNumber(ind)) {
+      return;
+    }
+    arry.splice(ind, 1);
+  }
+
   function RemoveUserFromChatGroupJob (bank, conversationid, changerid, userid, defer) {
     AlterUsersOnChatGroupJob.call(this, bank, conversationid, changerid, userid, defer);
   }
@@ -25,6 +43,9 @@ function createRemoveUserFromChatGroupJob (lib, mylib) {
       return false;
     }
     return true;
+  };
+  RemoveUserFromChatGroupJob.prototype.alterGroupNotRead = function (nr) {
+    removeObjFromArry(nr, 'u', this.userid);
   };
   RemoveUserFromChatGroupJob.prototype.alterAffectedUserCids = function (usercids) {
     removeFromArry(usercids, this.conversationid);

@@ -1,4 +1,4 @@
-function createJobs (lib, utilslib, utils) {
+function createJobs (lib, utilslib, msgparsinglib, utils) {
   'use strict';
 
   var q = lib.q,
@@ -29,6 +29,9 @@ function createJobs (lib, utilslib, utils) {
   require('./markmessagercvdcreator')(lib, ret, utils);
   require('./markmessageseencreator')(lib, ret, utils);
   require('./newchatgroupwithmemberscreator')(lib, ret, utils);
+  require('./editmessagecreator')(lib, ret, utils);
+  require('./optionalpreviewcreatorcreator')(lib, ret, msgparsinglib, utils);
+  require('./updatemessagewithpreviewcreator')(lib, ret, msgparsinglib, utils);
 
   return ret;
 }

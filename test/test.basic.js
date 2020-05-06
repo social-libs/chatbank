@@ -7,7 +7,7 @@ describe('Basic Test', function () {
   });
   it('Process new P2P Message', function () {
     return expect(
-      qlib.promise2console(BasicBank.processNewMessage('andra', null, 'luka', 'blah'), 'P2P')
+      qlib.promise2console(BasicBank.processNewMessage('andra', null, 'luka', 'blah', null), 'P2P')
     ).to.eventually.include(
       {id:utils.zeroStringJoinSorted('andra', 'luka'), messageid:1}
     );
@@ -36,9 +36,27 @@ describe('Basic Test', function () {
       {id:utils.zeroStringJoinSorted('andra', 'luka'), messageid:1, seenby: 'luka'}
     );
   });
+  /*
+   * luka edits the message - should fail
+   * andra edits the message - some criterion in the check of the last notified message, e.g. edits array has length===1
+   */
+  it('luka edits the message - should fail', function () {
+    return expect(
+      qlib.promise2console(BasicBank.editMessage('luka', BasicBank_LastConversationNotified.id, 1, 'Edited content'), 'editMessage')
+    ).to.eventually.be.rejectedWith(
+      1
+    );
+  });
+  it('andra edits the message - some criterion in the check of the last notified message, e.g. edits array has length===1', function () {
+    return expect(
+      qlib.promise2console(BasicBank.editMessage('andra', BasicBank_LastConversationNotified.id, 1, 'Edited content'), 'editMessage')
+    ).to.eventually.include(
+      {editedMessage: 'Edited content'}
+    );
+  });
   it('Answer to P2P Message', function () {
     return expect(
-      qlib.promise2console(BasicBank.processNewMessage('luka', null, 'andra', 'wut?'), 'P2P')
+      qlib.promise2console(BasicBank.processNewMessage('luka', null, 'andra', 'wut?', null), 'P2P')
     ).to.eventually.include(
       {id:utils.zeroStringJoinSorted('andra', 'luka'), messageid:2}
     );
@@ -50,7 +68,7 @@ describe('Basic Test', function () {
   });
   it('Creator sends a message to 1-user group', function () {
     return expect(
-      qlib.promise2console(BasicBank.processNewMessage('luka', BasicBank_LastConversationNotified.id, null, 'There you go!'), 'Creator sends a message')
+      qlib.promise2console(BasicBank.processNewMessage('luka', BasicBank_LastConversationNotified.id, null, 'There you go!', null), 'Creator sends a message')
     ).to.eventually.include(
       {id: BasicBank_LastConversationNotified.id, messageid: 3} 
     );
@@ -72,14 +90,14 @@ describe('Basic Test', function () {
   });
   it('Newly added user sends a message to 1-user group', function () {
     return expect(
-      qlib.promise2console(BasicBank.processNewMessage('ra', BasicBank_LastConversationNotified.id, null, 'There you go!'), 'New User sends a message')
+      qlib.promise2console(BasicBank.processNewMessage('ra', BasicBank_LastConversationNotified.id, null, 'There you go!', null), 'New User sends a message')
     ).to.eventually.include(
       {id: BasicBank_LastConversationNotified.id, messageid: 4} 
     );
   });
   it('Mark message rcvd by luka', function () {
     return expect(
-      qlib.promise2console(BasicBank.markMessageRcvd('luka', BasicBank_LastConversationNotified.id, 4), 'markMessageSeen')
+      qlib.promise2console(BasicBank.markMessageRcvd('luka', BasicBank_LastConversationNotified.id, 4), 'markMessageRcvd')
     ).to.eventually.include(
       {id: BasicBank_LastConversationNotified.id, messageid: 4, rcvdby: 'luka'} 
     );
@@ -98,7 +116,7 @@ describe('Basic Test', function () {
   });
   it('Latest user sends a message to Group', function () {
     return expect(
-      qlib.promise2console(BasicBank.processNewMessage('andra', BasicBank_LastConversationNotified.id, null, 'And there you go from andra too'), 'Latest user sends a message')
+      qlib.promise2console(BasicBank.processNewMessage('andra', BasicBank_LastConversationNotified.id, null, 'And there you go from andra too', null), 'Latest user sends a message')
     ).to.eventually.include(
       {id: BasicBank_LastConversationNotified.id, messageid: 5} 
     );
@@ -112,9 +130,24 @@ describe('Basic Test', function () {
   });
   it('One of the members sends a message to the new group', function () {
     return expect(
-      qlib.promise2console(BasicBank.processNewMessage('ra', BasicBank_LastConversationNotified.id, null, 'There you go!'), 'New User sends a message')
+      qlib.promise2console(BasicBank.processNewMessage('ra', BasicBank_LastConversationNotified.id, null, 'There you go!', null), 'New User sends a message')
     ).to.eventually.include(
       {id: BasicBank_LastConversationNotified.id, messageid: 6} 
     );
+  });
+  //preview testing
+  it('luka sends a message with link, preview true', function () {
+    return expect(
+      qlib.promise2console(BasicBank.processNewMessage('andra', null, 'luka', 'Divi ovo: https://www.youtube.com/watch?v=v-BvRlsbUiU', {preview:true}), 'P2P')
+    ).to.eventually.include(
+      {id:utils.zeroStringJoinSorted('andra', 'luka'), messageid:7}
+    );
+  });
+  it('Wait for preview', function () {
+    this.timeout(1e7);
+    return waitForConversationNotification({'preview.root': 'https://www.youtube.com'});
+  });
+  it('Finish', function () {
+    return deInitChatLib();
   });
 });

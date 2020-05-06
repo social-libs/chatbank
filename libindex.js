@@ -1,11 +1,11 @@
-function createLib (execlib, utilslib, leveldblib) {
+function createLib (execlib, utilslib, leveldblib, msgparsinglib) {
   'use strict';
 
   var lib = execlib.lib,
     q = lib.q,
     qlib = lib.qlib,
     utils = require('./utils')(lib),
-    jobs = require('./jobs')(lib, utilslib, utils);
+    jobs = require('./jobs')(lib, utilslib, msgparsinglib, utils);
 
   function startAssoc (hash) {
     var d = q.defer(), ret = d.promise;
@@ -144,8 +144,8 @@ function createLib (execlib, utilslib, leveldblib) {
       starteddefer.resolve(this);
     }
   };
-  ChatBank.prototype.processNewMessage = function (from, togroup, to, message) {
-    return this.jobs.run('.', new this.Jobs.ProcessNewMessageJob(this, from, togroup, to, message));
+  ChatBank.prototype.processNewMessage = function (from, togroup, to, message, options) {
+    return this.jobs.run('.', new this.Jobs.ProcessNewMessageJob(this, from, togroup, to, message, options));
   };
   ChatBank.prototype.createNewGroup = function (creator, groupname) {
     return this.jobs.run('.', new this.Jobs.NewChatGroupJob(this, creator, groupname));
@@ -174,11 +174,18 @@ function createLib (execlib, utilslib, leveldblib) {
   ChatBank.prototype.markMessageSeen = function (userid, conversationid, messageid) {
     return (new this.Jobs.MarkMessageSeenJob(this, userid, conversationid, messageid)).go();
   };
+  ChatBank.prototype.editMessage = function (userid, conversationid, messageid, editedMessage) {
+    return this.jobs.run('.', new this.Jobs.EditMessageJob(this, userid, conversationid, messageid, editedMessage));
+  };
+  ChatBank.prototype._internalUpdateMessageWithPreviewJob = function (conversationid, p2p, affected, messageid, previewobj) {
+    return this.jobs.run('.', new this.Jobs.UpdateMessageWithPreviewJob(this, conversationid, p2p, affected, messageid, previewobj));
+  };
   ChatBank.prototype.Jobs = jobs;
 
   return {
     Bank: ChatBank,
-    utils: utils
+    utils: utils,
+    deInit: msgparsinglib.deInit.bind(msgparsinglib)
   };
 }
 

@@ -83,6 +83,17 @@ function createUtils (lib) {
     }
     return result;
   }
+  function brandNewP2PMessage(senderid, contents) {
+    var ret = {
+      from: senderid,
+      message: contents,
+      created: Date.now(),
+      rcvd: null,
+      seen: null/*,
+      edits: []*/
+    };
+    return ret;
+  }
   function brandNewGroupMessage (conv, senderid, contents) {
     var ret = {
       from: senderid,
@@ -90,7 +101,8 @@ function createUtils (lib) {
       created: Date.now(),
       seen: null,
       rcvdby: [],
-      seenby: []
+      seenby: []/*,
+      edits: []*/
     };
     if (!(conv && lib.isArray(conv.afu))) {
       return ret;
@@ -157,6 +169,7 @@ function createUtils (lib) {
     brandNewConversation: brandNewConversation,
     bumpNotRead: bumpNotRead,
     userInNotRead: userInNotRead,
+    brandNewP2PMessage: brandNewP2PMessage,
     brandNewGroupMessage: brandNewGroupMessage,
     markMessageRcvdBy: markMessageRcvdBy,
     markMessageSeenBy: markMessageSeenBy,

@@ -9,13 +9,13 @@ describe('Basic Test', function () {
     return qlib.promise2console(jobslib.pushMessage('blah', 'JobsBank'), 'pushMessage');
   });
   it('Process new peer2peer message', function () {
-    return qlib.promise2console(jobslib.processNewMessage('blah', 'andra', 'luka', null, 'JobsBank'), 'processNewPeer2PeerMessage');
+    return qlib.promise2console(jobslib.processNewMessage('blah', 'andra', 'luka', null, null, 'JobsBank'), 'processNewPeer2PeerMessage');
   });
   it('Process new peer2peer message', function () {
-    return qlib.promise2console(jobslib.processNewMessage('wut?', 'luka', 'andra', null, 'JobsBank'), 'processNewPeer2PeerMessage');
+    return qlib.promise2console(jobslib.processNewMessage('wut?', 'luka', 'andra', null, null, 'JobsBank'), 'processNewPeer2PeerMessage');
   });
   it('Process new peer2peer message', function () {
-    return qlib.promise2console(jobslib.processNewMessage("that's wut I sed", 'andra', 'luka', null, 'JobsBank'), 'processNewPeer2PeerMessage');
+    return qlib.promise2console(jobslib.processNewMessage("that's wut I sed", 'andra', 'luka', null, null, 'JobsBank'), 'processNewPeer2PeerMessage');
   });
   it('Create new Chat Group', function () {
     return qlib.promise2console(jobslib.createNewChatGroup('andra', '1', 'JobsBank'), 'createNewChatGroup');
@@ -33,19 +33,19 @@ describe('Basic Test', function () {
     return expect(jobslib.addNewUser2ChatGroup(JobsBank_LastConversationNotified.id+'bla', 'andra', 'luka', 'JobsBank')).to.be.rejectedWith(JobsBank_LastConversationNotified.id+'bla');
   });
   it('Process new peer2group message', function () {
-    return qlib.promise2console(jobslib.processNewMessage("You made a group, andra?", 'luka', null, JobsBank_LastConversationNotified.id, 'JobsBank'), 'processNewPeer2GroupMessage');
+    return qlib.promise2console(jobslib.processNewMessage("You made a group, andra?", 'luka', null, JobsBank_LastConversationNotified.id, null, 'JobsBank'), 'processNewPeer2GroupMessage');
   });
   it('Non-creator adds a new user to Group', function () {
     return qlib.promise2console(jobslib.addNewUser2ChatGroup(JobsBank_LastConversationNotified.id, 'luka', 'ra', 'JobsBank'), 'addNewUser2ChatGroup');
   });
   it('Process new peer2group message', function () {
-    return qlib.promise2console(jobslib.processNewMessage("Hi to all!", 'ra', null, JobsBank_LastConversationNotified.id, 'JobsBank'), 'processNewPeer2GroupMessage');
+    return qlib.promise2console(jobslib.processNewMessage("Hi to all!", 'ra', null, JobsBank_LastConversationNotified.id, null, 'JobsBank'), 'processNewPeer2GroupMessage');
   });
   it('Non-creator removes a user from Group', function () {
     return qlib.promise2console(jobslib.removeUserFromChatGroup(JobsBank_LastConversationNotified.id, 'luka', 'ra', 'JobsBank'), 'removeUserFromChatGroup');
   });
   it('Process new peer2group message from removed user', function () {
-    return jobslib.processNewMessage("Does this work still?", 'ra', null, JobsBank_LastConversationNotified.id, 'JobsBank').should.be.rejectedWith('ra');
+    return jobslib.processNewMessage("Does this work still?", 'ra', null, JobsBank_LastConversationNotified.id, null, 'JobsBank').should.be.rejectedWith('ra');
   });
   it('Get all conversations of andra', function () {
     return qlib.promise2console(jobslib.allConversationsOfUser('andra', 'JobsBank'), 'All conversations of andra');

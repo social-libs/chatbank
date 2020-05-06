@@ -5,15 +5,17 @@ function createProcessNewMessageJob (lib, mylib) {
     qlib = lib.qlib,
     JobOnBank = mylib.JobOnBank;
 
-  function ProcessNewMessageJob (bank, senderid, conversationid, receiverid, contents, defer) {
+  function ProcessNewMessageJob (bank, senderid, conversationid, receiverid, contents, options, defer) {
     JobOnBank.call(this, bank, defer);
     this.senderid = senderid;
     this.conversationid = conversationid;
     this.receiverid = receiverid;
     this.contents = contents;
+    this.options = options;
   }
   lib.inherit(ProcessNewMessageJob, JobOnBank);
   ProcessNewMessageJob.prototype.destroy = function () {
+    this.options = null;
     this.contents = null;
     this.receiverid = null;
     this.conversationid = null;
@@ -26,11 +28,11 @@ function createProcessNewMessageJob (lib, mylib) {
       return ok.val;
     }
     if (this.receiverid) {
-      qlib.promise2defer((new mylib.ProcessNewPeer2PeerMessageJob(this.destroyable, this.senderid, this.receiverid, this.contents)).go(), this);
+      qlib.promise2defer((new mylib.ProcessNewPeer2PeerMessageJob(this.destroyable, this.senderid, this.receiverid, this.contents, this.options)).go(), this);
       return ok.val;
     }
     if (this.conversationid) {
-      qlib.promise2defer((new mylib.ProcessNewPeer2GroupMessageJob(this.destroyable, this.senderid, this.conversationid, this.contents)).go(), this);
+      qlib.promise2defer((new mylib.ProcessNewPeer2GroupMessageJob(this.destroyable, this.senderid, this.conversationid, this.contents, this.options)).go(), this);
     }
     return ok.val;
   };

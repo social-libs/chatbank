@@ -15,19 +15,21 @@ function checkPropertiesOn (thingy, propnamearry) {
   propnamearry.forEach(propexistencechecker.bind(null, thingy));
 }
 function onConversationNotification (convnotf) {
-  //console.log('onConversationNotification', convnotf);
+  console.log('onConversationNotification', convnotf);
   checkPropertiesOn(convnotf, ['id', 'affected', 'lastmessage']);
   if (convnotf.lastmessage) {
     checkPropertiesOn(convnotf.lastmessage, ['from', 'message', 'created', 'seen']);
   }
   setGlobal('LastConversationNotified', convnotf);
 }
+/*
 function onMessageNotification (messnotf) {
-  //console.log('onMessageNotification', messnotf);
+  console.log('onMessageNotification', messnotf);
   checkPropertiesOn(messnotf, ['conversationid', 'affected', 'message']);
   checkPropertiesOn(messnotf.message, ['from', 'message', 'created', 'seen']);
   setGlobal('LastMessageNotified', messnotf);
 }
+*/
 function bankFromName (bankname) {
   return getGlobal(bankname || 'Bank');
 }

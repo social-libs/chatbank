@@ -1,32 +1,28 @@
-function createMarkMessageSeenJob (lib, mylib, utils) {
+function createEditMessageJob (lib, mylib, utils) {
   'use strict';
 
   var JobOnBank = mylib.JobOnBank;
 
-  function MarkMessageSeenJob (bank, userid, conversationid, messageid, defer) {
+  function EditMessageJob (bank, userid, conversationid, messageid, editedMessage, defer) {
     JobOnBank.call(this, bank);
     this.userid = userid;
     this.conversationid = conversationid;
     this.messageid = messageid;
-    this.isp2p = null;
+    this.editedMessage = editedMessage;
     this.conversation = null;
     this.message = null;
-    this.seenat = null;
-    this.notread = null;
   }
-  lib.inherit(MarkMessageSeenJob, JobOnBank);
-  MarkMessageSeenJob.prototype.destroy = function () {
-    this.notread = null;
-    this.seenat = null;
+  lib.inherit(EditMessageJob, JobOnBank);
+  EditMessageJob.prototype.destroy = function () {
     this.message = null;
     this.conversation = null;
-    this.isp2p = null;
+    this.editMessageHistory = null;
     this.messageid = null;
     this.conversationid = null;
     this.userid = null;
     JobOnBank.prototype.destroy.call(this);
   };
-  MarkMessageSeenJob.prototype.go = function () {
+  EditMessageJob.prototype.go = function () {
     var ok = this.okToGo();
     if (!ok.ok) {
       return ok.val;
@@ -37,7 +33,7 @@ function createMarkMessageSeenJob (lib, mylib, utils) {
     );
     return ok.val;
   };
-  MarkMessageSeenJob.prototype.onConversation = function (conversation) {
+  EditMessageJob.prototype.onConversation = function (conversation) {
     //try to cover both the peer2peer and peer2group cases
     if (!this.okToProceed()) {
       return;
@@ -47,7 +43,6 @@ function createMarkMessageSeenJob (lib, mylib, utils) {
       return;
     }
     this.conversation = conversation;
-    this.isp2p = !lib.isArray(conversation.afu);
     if (lib.isArray(conversation.afu) && conversation.afu.indexOf(this.userid)<0) {
       this.reject(new lib.Error('SENDER_NOT_MEMBER_OF_GROUP', this.userid));
       return;
@@ -70,7 +65,8 @@ function createMarkMessageSeenJob (lib, mylib, utils) {
       this.reject.bind(this)
     );
   };
-  MarkMessageSeenJob.prototype.onMessage = function (msg) {
+  EditMessageJob.prototype.onMessage = function (msg) {
+    //console.log('onMessage', msg)
     var didsomething;
     if (!this.okToProceed()) {
       return;
@@ -83,21 +79,20 @@ function createMarkMessageSeenJob (lib, mylib, utils) {
       this.reject(new lib.Error('MESSAGE_INVALID_FORMAT', this.messageid));
       return;
     }
-    if (msg.from === this.userid) {
-      this.resolve(true);
+    if (msg.from !== this.userid) {
+      this.reject(new lib.Error('MESSAGE_CANNOT_EDIT', this.messageid));
       return;
     }
-    this.seenat = Date.now();
-    if (lib.isArray(msg.seenby)) { //p2group message
-      utils.markMessageRcvdBy(msg, this.userid); //result of this call is irrelevant
-      if (utils.markMessageSeenBy(msg, this.userid)) {
-        didsomething = true;
+    //TODO add advanced check if edited message is too much different than original (e.g. Discord)
+    if (msg.message !== this.editedMessage){
+      if (lib.isArray(msg.edits)){
+        msg.edits.push([msg.message, msg.created]);
+      }else{
+        msg.edits = [[msg.message, msg.created]];
       }
-    } else { //p2p message
-      if (msg.seen === null) {
-        msg.seen = this.seenat;
-        didsomething = true;
-      }
+      msg.message = this.editedMessage;
+      msg.created = Date.now();
+      didsomething = true;
     }
     if (didsomething) {
       (new this.destroyable.Jobs.PutMessageJob(this.destroyable, this.messageid, msg)).go().then(
@@ -108,49 +103,52 @@ function createMarkMessageSeenJob (lib, mylib, utils) {
     }
     this.resolve(true);
   };
-  MarkMessageSeenJob.prototype.onMessageSaved = function (savemsgd) {
+  EditMessageJob.prototype.onMessageSaved = function (savedmsg) {
     if (!this.okToProceed()) {
       return;
     }
-    //this.messageid = savemsgd[0]; //trivial, gotta be
-    this.message = savemsgd[1];
-    try {
-      this.notread = utils.decNotReadOnConversationFor(this.conversation, this.userid);
-    } catch (e) {
-      this.reject(e);
+    //this.messageid = savedmsg[0]; //trivial, gotta be
+    this.message = savedmsg[1];
+    if (
+      lib.isArray(this.conversation.mids) &&
+      this.conversation.mids.length>0 && 
+      this.conversation.mids[this.conversation.mids.length-1] === this.messageid
+    ) {
+      this.conversation.lastm.message = this.message.message;
+      this.conversation.lastm.created = this.message.created;
+      //not read (nr) can be handled here as well
+      (new this.destroyable.Jobs.PutConversationJob(this.destroyable, this.conversationid, this.conversation)).go().then(
+        this.onConversationSaved.bind(this),
+        this.reject.bind(this)
+      );
       return;
     }
-    if (!lib.isNumber(this.notread)) {
-      this.reject(new lib.Error('INTERNAL_ERROR_IN_MARKING_MESSAGE_SEEN', this.messageid));
-      //this.doResolve();
-      return;
-    }
-    (new this.destroyable.Jobs.PutConversationJob(this.destroyable, this.conversationid, this.conversation)).go().then(
-      this.onConversationSaved.bind(this),
-      this.reject.bind(this)
-    );
+    this.doResolve();
   };
-  MarkMessageSeenJob.prototype.onConversationSaved = function (savedconv) {
+  EditMessageJob.prototype.onConversationSaved = function (savedconv) {
     if (!this.okToProceed()) {
       return;
     }
     this.doResolve();
   };
-  MarkMessageSeenJob.prototype.doResolve = function () {
+  EditMessageJob.prototype.doResolve = function () {
     this.destroyable.conversationNotification.fire({
       id: this.conversationid,
+      p2p: !lib.isArray(this.conversation.afu),
       messageid: this.messageid,
-      p2p: this.isp2p,
-      seenby: this.userid,
-      seenat: this.seenat,
-      nr: this.notread,
-      affected: [this.message.from, this.userid],
-      seenmessage: this.message
+      affected: this.conversation.nr.reduce(nruer, []),
+      edited: this.message.message,
+      moment: this.message.created
     });
-    this.resolve({id: this.conversationid, messageid: this.messageid, seenby: this.userid, seenat: this.seenat});
+    this.resolve({id: this.conversationid, messageid: this.messageid, editedMessage: this.editedMessage});
   };
 
-  mylib.MarkMessageSeenJob = MarkMessageSeenJob;
+  function nruer (result, nr) {
+    result.push(nr.u);
+    return result;
+  }
+
+  mylib.EditMessageJob = EditMessageJob;
 }
-module.exports = createMarkMessageSeenJob;
+module.exports = createEditMessageJob;
 

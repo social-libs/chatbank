@@ -7,9 +7,9 @@ function createJobsLib (mylib) {
     return (new bank.Jobs.PushMessageJob(bank, message)).go();
   }
 
-  function processNewMessage (message, from, to, togroup, bankname) {
+  function processNewMessage (message, from, to, togroup, options, bankname) {
     var bank = bankFromName(bankname);
-    return (new bank.Jobs.ProcessNewMessageJob(bank, from, togroup, to, message)).go();
+    return (new bank.Jobs.ProcessNewMessageJob(bank, from, togroup, to, message, options)).go();
   }
 
   function createNewChatGroup (creator, groupname, bankname) {

@@ -5,11 +5,12 @@ function createProcessNewPeer2GroupMessage (lib, mylib, utils) {
     qlib = lib.qlib,
     JobOnBank = mylib.JobOnBank;
 
-  function ProcessNewPeer2GroupMessageJob (bank, senderid, conversationid, contents, defer) {
+  function ProcessNewPeer2GroupMessageJob (bank, senderid, conversationid, contents, options, defer) {
     JobOnBank.call(this, bank, defer);
     this.senderid = senderid;
     this.conversationid = conversationid;
     this.contents = contents;
+    this.options = options;
     this.conversation = null;
     this.messageid = null;
     this.message = null;
@@ -19,6 +20,7 @@ function createProcessNewPeer2GroupMessage (lib, mylib, utils) {
     this.message = null;
     this.messageid = null;
     this.conversation = null;
+    this.options = null;
     this.contents = null;
     this.conversationid = null;
     this.senderid = null;
@@ -78,6 +80,7 @@ function createProcessNewPeer2GroupMessage (lib, mylib, utils) {
       nr: this.conversation.nr,
       lastmessage: convarry[1].lastm
     });
+    (new this.destroyable.Jobs.OptionalPreviewCreatorJob(this.destroyable, this.conversationid, false, convarry[1].afu, this.messageid, this.contents, this.options)).go();
     this.resolve({
       id: convarry[0],
       messageid: this.messageid

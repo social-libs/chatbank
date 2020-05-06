@@ -2,8 +2,11 @@ function createJobsLib (mylib) {
   'use strict';
   var bankFromName = mylib.bankFromName;
 
-  function processNewMessage (message, from, to, togroup, bankname) {
-    return bankFromName(bankname).processNewMessage(from, togroup, to, message);
+  function processNewMessage (message, from, to, togroup, options, bankname) {
+    if (!lib.isString(bankname)) {
+      throw new Error('did you send the options?');
+    }
+    return bankFromName(bankname).processNewMessage(from, togroup, to, message, options);
   }
 
   function createNewChatGroup (creator, bankname) {
@@ -37,6 +40,10 @@ function createJobsLib (mylib) {
   function markMessageSeen (userid, conversationid, messageid, bankname) {
     return bankFromName(bankname).markMessageSeen(userid, conversationid, messageid);
   }
+
+  function editMessage (userid, conversationid, messageid, editedMessage, bankname) {
+    return bankFromName(bankname).editMessage(userid, conversationid, messageid, editedMessage);
+  }
   mylib.bank = {
     processNewMessage: processNewMessage,
     createNewChatGroup: createNewChatGroup,
@@ -46,7 +53,8 @@ function createJobsLib (mylib) {
     initiateConversationsOfUserForUsers: initiateConversationsOfUserForUsers,
     messagesOfConversation: messagesOfConversation,
     markMessageRcvd: markMessageRcvd,
-    markMessageSeen: markMessageSeen
+    markMessageSeen: markMessageSeen,
+    editMessage: editMessage
   };
 }
 

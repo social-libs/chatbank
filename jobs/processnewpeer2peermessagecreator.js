@@ -11,11 +11,12 @@ function createProcessNewPeer2PeerMessage (lib, mylib, utils) {
     PushMessageJob = mylib.PushMessageJob,
     zeroString = String.fromCharCode(0);
 
-  function ProcessNewPeer2PeerMessageJob (bank, senderid, receiverid, contents, defer) {
+  function ProcessNewPeer2PeerMessageJob (bank, senderid, receiverid, contents, options, defer) {
     JobOnBank.call(this, bank, defer);
     this.senderid = senderid;
     this.receiverid = receiverid;
     this.contents = contents;
+    this.options = options;
     this.conversationid = null;
     this.sender = null;
     this.receiver = null;
@@ -33,6 +34,7 @@ function createProcessNewPeer2PeerMessage (lib, mylib, utils) {
     this.receiver = null;
     this.sender = null;
     this.conversationid = null;
+    this.options = null;
     this.contents = null;
     this.receiverid = null;
     this.senderid = null;
@@ -48,13 +50,7 @@ function createProcessNewPeer2PeerMessage (lib, mylib, utils) {
       (new this.destroyable.Jobs.FindUserJob(this.destroyable, this.senderid)).go(),
       (new this.destroyable.Jobs.FindUserJob(this.destroyable, this.receiverid)).go(),
       (new this.destroyable.Jobs.FindConversationJob(this.destroyable, this.conversationid)).go(),
-      (new this.destroyable.Jobs.PushMessageJob(this.destroyable, {
-        from: this.senderid,
-        message: this.contents,
-        created: Date.now(),
-        rcvd: null,
-        seen: null
-      })).go()
+      (new this.destroyable.Jobs.PushMessageJob(this.destroyable, utils.brandNewP2PMessage(this.senderid, this.contents))).go()
     ]).then(
       this.onGetCombo.bind(this),
       this.reject.bind(this)
@@ -104,13 +100,15 @@ function createProcessNewPeer2PeerMessage (lib, mylib, utils) {
     );
   };
   ProcessNewPeer2PeerMessageJob.prototype.onPutCombo = function (combo) {
+    var affected;
     if (!this.okToProceed()) {
       return;
     }
+    affected = [this.senderid, this.receiverid];
     this.destroyable.conversationNotification.fire({
       id: this.conversationid,
       p2p: true,
-      affected: [this.senderid, this.receiverid],
+      affected: affected,
       mids: this.conversation.mids.slice(-2),
       nr: this.conversation.nr,
       lastmessage: this.conversation.lastm
@@ -121,6 +119,7 @@ function createProcessNewPeer2PeerMessage (lib, mylib, utils) {
       conversationid: this.conversationid
     }));
     */
+    (new this.destroyable.Jobs.OptionalPreviewCreatorJob(this.destroyable, this.conversationid, true, affected, this.messageid, this.contents, this.options)).go();
     this.resolve({id: this.conversationid, messageid: this.messageid});
   };
 
