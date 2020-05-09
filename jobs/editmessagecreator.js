@@ -132,14 +132,17 @@ function createEditMessageJob (lib, mylib, utils) {
     this.doResolve();
   };
   EditMessageJob.prototype.doResolve = function () {
+    var p2p = !lib.isArray(this.conversation.afu),
+      affected = this.conversation.nr.reduce(nruer, []);
     this.destroyable.conversationNotification.fire({
       id: this.conversationid,
-      p2p: !lib.isArray(this.conversation.afu),
+      p2p: p2p,
       messageid: this.messageid,
-      affected: this.conversation.nr.reduce(nruer, []),
+      affected: affected,
       edited: this.message.message,
       moment: this.message.created
     });
+    (new this.destroyable.Jobs.OptionalPreviewCreatorJob(this.destroyable, this.conversationid, p2p, affected, this.messageid, this.message.message, this.options)).go();
     this.resolve({id: this.conversationid, messageid: this.messageid, editedMessage: this.editedMessage});
   };
 

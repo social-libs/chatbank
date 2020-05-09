@@ -47,7 +47,7 @@ function createInitiateConversationsOfUserForUsersJob (lib, mylib, utils) {
       return;
     }
 
-    console.log('Time to check existing convs', convs, 'against', this.convids);
+    //console.log('Time to check existing convs', convs, 'against', this.convids);
     if (lib.isArray(convs)) {
       convs.forEach(this.clearUserIds.bind(this));
     }
@@ -73,9 +73,9 @@ function createInitiateConversationsOfUserForUsersJob (lib, mylib, utils) {
     if (!this.okToProceed()) {
       return;
     }
-    console.log('at last, onChatsInstantiated', iconvs);
+    //console.log('at last, onChatsInstantiated', iconvs);
     this.existingConversations.push.apply(this.existingConversations, iconvs);
-    console.log('after join, all together', this.existingConversations);
+    //console.log('after join, all together', this.existingConversations);
     this.resolve(this.existingConversations);
   };
 
