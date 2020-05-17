@@ -23,6 +23,9 @@ function createAddNewUserToChatGroupJob (lib, mylib, utils) {
   AddNewUserToChatGroupJob.prototype.alterGroupNotRead = function (nr) {
     nr.push(utils.initialnotreader(this.userid));
   };
+  AddNewUserToChatGroupJob.prototype.makeUpNotificationEvent = function (eventobj) {
+    eventobj.newgroupmember = this.userid;
+  };
 
   mylib.AddNewUserToChatGroupJob = AddNewUserToChatGroupJob;
 }

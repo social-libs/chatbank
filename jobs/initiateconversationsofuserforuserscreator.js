@@ -51,7 +51,7 @@ function createInitiateConversationsOfUserForUsersJob (lib, mylib, utils) {
     if (lib.isArray(convs)) {
       convs.forEach(this.clearUserIds.bind(this));
     }
-    console.log('finally, userids', this.userids);
+    //console.log('finally, userids', this.userids);
 
     this.existingConversations = convs || [];
     q.all(this.convids.map(this.createP2PConversation.bind(this))).then(
@@ -67,8 +67,15 @@ function createInitiateConversationsOfUserForUsersJob (lib, mylib, utils) {
     }
   };
   InitiateConversationsOfUserForUsersJob.prototype.createP2PConversation = function (convid, index) {
-    return (new this.destroyable.Jobs.PutConversationJob(this.destroyable, convid, utils.brandNewConversation(this.userid, this.userids[index]))).go();
+    return (new this.destroyable.Jobs.PutConversationJob(this.destroyable, convid, utils.brandNewConversation(this.userid, this.userids[index]))).go().then(p2per);
   };
+  function p2per (conv) {
+    if (!lib.isArray(conv) && conv.length===2) {
+      return;
+    }
+    conv[1].p2p = true;
+    return conv;
+  }
   InitiateConversationsOfUserForUsersJob.prototype.onChatsInstantiated = function (iconvs) {
     if (!this.okToProceed()) {
       return;

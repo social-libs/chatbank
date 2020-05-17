@@ -27,7 +27,7 @@ function createUpdateMessageWithPreviewJob (lib, mylib, msgparsinglib, utils) {
     if (!ok.ok) {
       return ok.val;
     }
-    if (!(this.messageid && this.previewobj)) {
+    if (!this.messageid) {
       this.resolve(false);
       return ok.val;
     }
@@ -39,6 +39,10 @@ function createUpdateMessageWithPreviewJob (lib, mylib, msgparsinglib, utils) {
   };
   UpdateMessageWithPreviewJob.prototype.onMessage = function (msg) {
     if (!this.okToProceed()) {
+      return;
+    }
+    if (!this.previewobj && !msg.preview) {
+      this.resolve(true);
       return;
     }
     msg.preview = this.previewobj;

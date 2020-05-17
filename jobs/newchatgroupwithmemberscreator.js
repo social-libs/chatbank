@@ -8,13 +8,13 @@ function createNewChatGroupJob (lib, mylib, utils) {
     this.creatorid = creatorid;
     this.groupname = groupname;
     this.members = memberarry;
-    this.membercount = lib.isArray(this.members) ? this.members.length : 0;
+    this.membersadded = 0;
     this.groupid = null;
   }
   lib.inherit(NewChatGroupWithMembersJob, JobOnBank);
   NewChatGroupWithMembersJob.prototype.destroy = function () {
     this.groupid = null;
-    this.membercount = null;
+    this.membersadded = null;
     this.members = null;
     this.groupname = null;
     this.creatorid = null;
@@ -38,7 +38,7 @@ function createNewChatGroupJob (lib, mylib, utils) {
     this.groupid = groupid;
     this.addMember();
   };
-  NewChatGroupWithMembersJob.prototype.addMember = function () {
+  NewChatGroupWithMembersJob.prototype.addMember = function (addedmember) {
     var memberid;
     if (!this.okToProceed()) {
       return;
@@ -46,6 +46,9 @@ function createNewChatGroupJob (lib, mylib, utils) {
     if (!this.groupid) {
       this.reject(new lib.Error('NO_GROUP_ID', 'Newly created group should have had an id'));
       return;
+    }
+    if (addedmember) {
+      this.membersadded++;
     }
     if (!lib.isArray(this.members)) {
       this.doDaResolve();
@@ -61,15 +64,16 @@ function createNewChatGroupJob (lib, mylib, utils) {
       return;
     }
     (new this.destroyable.Jobs.AddNewUserToChatGroupJob(this.destroyable, this.groupid, this.creatorid, memberid)).go().then(
-      this.addMember.bind(this),
+      this.addMember.bind(this, memberid),
       this.reject.bind(this)
     );
+    memberid = null;
   };
   NewChatGroupWithMembersJob.prototype.doDaResolve = function () {
     this.resolve({
       name: this.groupname,
       id: this.groupid,
-      members: this.membercount
+      members: this.membersadded
     });
   }
 

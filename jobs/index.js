@@ -23,7 +23,7 @@ function createJobs (lib, utilslib, msgparsinglib, utils) {
   require('./alterusersonchatgroupcreator')(lib, ret);
   require('./addusertochatgroupcreator')(lib, ret, utils);
   require('./removeuserfromchatgroupcreator')(lib, ret);
-  require('./allconversationsofusercreator')(lib, ret);
+  require('./allconversationsofusercreator')(lib, ret, utils);
   require('./initiateconversationsofuserforuserscreator')(lib, ret, utils);
   require('./messagesofconversationcreator')(lib, ret, utilslib, utils);
   require('./markmessagercvdcreator')(lib, ret, utils);
@@ -32,6 +32,7 @@ function createJobs (lib, utilslib, msgparsinglib, utils) {
   require('./editmessagecreator')(lib, ret, utils);
   require('./optionalpreviewcreatorcreator')(lib, ret, msgparsinglib, utils);
   require('./updatemessagewithpreviewcreator')(lib, ret, msgparsinglib, utils);
+  require('./ackuseractivitycreator')(lib, ret, utils);
 
   return ret;
 }

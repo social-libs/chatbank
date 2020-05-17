@@ -1,4 +1,4 @@
-function createAllConversationsOfUserJob (lib, mylib) {
+function createAllConversationsOfUserJob (lib, mylib, utils) {
   'use strict';
 
   var q = lib.q,
@@ -33,6 +33,7 @@ function createAllConversationsOfUserJob (lib, mylib) {
       this.resolve([]);
       return;
     }
+    //console.log('AllConversationsOfUserJob for', this.userid, '=>', user.cids);
     qlib.promise2defer(
       q.all(user.cids.map(conversationfetcher.bind(null, this.destroyable))),
       this
@@ -50,6 +51,7 @@ function createAllConversationsOfUserJob (lib, mylib) {
     var ret = q(arry);
     //conv.mids = conv.mids.slice(-2);
     arry[1] = lib.pickExcept(conv, ['mids']);
+    arry[1].p2p = utils.conversationisp2p(conv);
     if (arry[1].lastm) {
       arry[1].lastm.id = conv.mids[conv.mids.length-1];
     }

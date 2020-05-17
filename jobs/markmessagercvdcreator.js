@@ -88,15 +88,8 @@ function createMarkMessageRcvdJob (lib, mylib, utils) {
       return;
     }
     this.rcvdat = Date.now();
-    if (lib.isArray(msg.rcvdby)) { //p2group message
-      if (utils.markMessageRcvdBy(msg, this.userid)) {
-        didsomething = true;
-      }
-    } else { //p2p message
-      if (msg.rcvd === null) {
-        msg.rcvd = this.rcvdat;
-        didsomething = true;
-      }
+    if (utils.markMessageRcvdBy(msg, this.userid)) {
+      didsomething = true;
     }
     if (didsomething) {
       (new this.destroyable.Jobs.PutMessageJob(this.destroyable, this.messageid, msg)).go().then(

@@ -22,6 +22,26 @@ function createUtils (lib) {
     return sp.indexOf(str)>=0;
   }
 
+  function convisp2p (conv) {
+    if (!conv) {
+      throw new Error('No conversation given');
+    }
+    return !lib.isArray(conv.afu);
+  }
+
+  function convaffected (conv) {
+    if (!(conv && conv.nr)) {
+      return [];
+    }
+    return conv.nr.reduce(nruer, []);
+  }
+    
+  function nruer (result, nr) {
+    result.push(nr.u);
+    return result;
+  }
+
+
   function initialnotreader (userid) {
     return {
       u: userid, nr: 0
@@ -99,7 +119,6 @@ function createUtils (lib) {
       from: senderid,
       message: contents,
       created: Date.now(),
-      seen: null,
       rcvdby: [],
       seenby: []/*,
       edits: []*/
@@ -113,6 +132,14 @@ function createUtils (lib) {
   function markMessageXBy (xname, msg, userid) { //xname === 'seen' || 'rcvd'
     var i, xs, x;
     if (!msg) {
+      return false;
+    }
+    if (xname in msg) { //p2p
+      x = msg[xname];
+      if (!x) {
+        msg[xname] = Date.now();
+        return true;
+      }
       return false;
     }
     xs = msg[xname+'by'];
@@ -165,6 +192,8 @@ function createUtils (lib) {
   return {
     zeroStringJoinSorted: zeroStringJoinSorted,
     conversationhasuser: convhasuser,
+    conversationisp2p: convisp2p,
+    conversationaffected: convaffected,
     initialnotreader: initialnotreader,
     brandNewConversation: brandNewConversation,
     bumpNotRead: bumpNotRead,

@@ -6,7 +6,8 @@ function createNewChatGroupJob (lib, mylib, utils) {
   function NewChatGroupJob (bank, creatorid, groupname, defer) {
     JobOnBank.call(this, bank, defer);
     this.creatorid = creatorid;
-    this.groupname = groupname;
+    this.groupname = lib.isString(groupname) ? groupname : groupname.name;
+    this.picture = lib.isString(groupname) ? null : groupname.picture;
     this.conversationid = null;
     this.conversation = null;
   }
@@ -14,6 +15,8 @@ function createNewChatGroupJob (lib, mylib, utils) {
   NewChatGroupJob.prototype.destroy = function () {
     this.conversation = null;
     this.conversationid = null;
+    this.picture = null;
+    this.groupname = null;
     this.creatorid = null;
     JobOnBank.prototype.destroy.call(this);
   };
@@ -33,6 +36,7 @@ function createNewChatGroupJob (lib, mylib, utils) {
     (new this.destroyable.Jobs.PutConversationJob(this.destroyable, lib.uid(), {
       cby: this.creatorid,
       name: this.groupname,
+      picture: this.picture,
       cat: Date.now(),
       afu: [this.creatorid],
       mids: [],
@@ -73,10 +77,11 @@ function createNewChatGroupJob (lib, mylib, utils) {
       return;
     }
     this.destroyable.conversationNotification.fire({
+      newgroup: true,
       id: this.conversationid,
+      p2p: false,
       affected: this.conversation.afu,
-      mids: this.conversation.mids.slice(-2),
-      lastmessage: this.conversation.lastm
+      mids: this.conversation.mids.slice(-2)
     });
     this.resolve(this.conversationid);
   };

@@ -35,8 +35,13 @@ function createRemoveUserFromChatGroupJob (lib, mylib) {
 
   function RemoveUserFromChatGroupJob (bank, conversationid, changerid, userid, defer) {
     AlterUsersOnChatGroupJob.call(this, bank, conversationid, changerid, userid, defer);
+    this.originalafu = null;
   }
   lib.inherit(RemoveUserFromChatGroupJob, AlterUsersOnChatGroupJob);
+  RemoveUserFromChatGroupJob.prototype.destroy = function () {
+    this.originalafu = null;
+    AlterUsersOnChatGroupJob.prototype.destroy.call(this);
+  };
   RemoveUserFromChatGroupJob.prototype.checkConversation = function (conversation) {
     if (conversation.afu.indexOf(this.userid)<0) {
       this.resolve(true);
@@ -51,7 +56,12 @@ function createRemoveUserFromChatGroupJob (lib, mylib) {
     removeFromArry(usercids, this.conversationid);
   };
   RemoveUserFromChatGroupJob.prototype.alterGroupAffectedUsers = function (afu) {
+    this.originalafu = afu.slice();
     removeFromArry(afu, this.userid);
+  };
+  RemoveUserFromChatGroupJob.prototype.makeUpNotificationEvent = function (eventobj) {
+    eventobj.affected = this.originalafu;
+    eventobj.removedgroupmember = this.userid;
   };
 
   mylib.RemoveUserFromChatGroupJob = RemoveUserFromChatGroupJob;

@@ -75,6 +75,7 @@ function createProcessNewPeer2GroupMessage (lib, mylib, utils) {
     }
     this.destroyable.conversationNotification.fire({
       id: convarry[0],
+      p2p: false,
       affected: convarry[1].afu,
       mids: convarry[1].mids.slice(-2),
       nr: this.conversation.nr,

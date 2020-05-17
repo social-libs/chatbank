@@ -42,14 +42,19 @@ describe('Basic Test', function () {
    */
   it('luka edits the message - should fail', function () {
     return expect(
-      qlib.promise2console(BasicBank.editMessage('luka', BasicBank_LastConversationNotified.id, 1, 'Edited content'), 'editMessage')
+      qlib.promise2console(BasicBank.editMessage('luka', BasicBank_LastConversationNotified.id, 1, 'Edited content', {}), 'editMessage')
     ).to.eventually.be.rejectedWith(
       1
     );
   });
+  it('Report user activity', function () {
+    return expect(
+      qlib.promise2console(BasicBank.ackUserActivity('andra', BasicBank_LastConversationNotified.id), 'ackUserActivity')
+    ).to.eventually.equal(true);
+  });
   it('andra edits the message - some criterion in the check of the last notified message, e.g. edits array has length===1', function () {
     return expect(
-      qlib.promise2console(BasicBank.editMessage('andra', BasicBank_LastConversationNotified.id, 1, 'Edited content'), 'editMessage')
+      qlib.promise2console(BasicBank.editMessage('andra', BasicBank_LastConversationNotified.id, 1, 'Edited content', {}), 'editMessage')
     ).to.eventually.include(
       {editedMessage: 'Edited content'}
     );
@@ -75,7 +80,7 @@ describe('Basic Test', function () {
   });
   it('Add a new user to Group', function () {
     return expect(
-      qlib.promise2console(BasicBank.addUserToGroup(BasicBank_LastConversationNotified.id, 'luka', 'ra'), 'Creator adds a User')
+      qlib.promise2console(BasicBank.addUserToGroup(BasicBank_LastConversationNotified.id, 'luka', 'ra'), 'luka adds ra')
     ).to.eventually.equal(true);
   });
   it('Mark message rcvd by ra', function () {

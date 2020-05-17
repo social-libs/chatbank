@@ -40,21 +40,17 @@ function createOptionalPreviewCreator (lib, mylib, msgparsinglib, utils) {
     parser = new msgparsinglib.Parser();
     previewables = parser.findPreviewables(this.message);
     if (!(lib.isArray(previewables) && previewables.length>0)) {
-      this.resolve(false);
+      this.onOptionalPreview(null);
       return ok.val;
     }
     msgparsinglib.createPreviewInParallelProcess(previewables[0]).then(
       this.onOptionalPreview.bind(this),
-      this.reject.bind(this)
+      this.onOptionalPreview.bind(this, null)
     );
     return ok.val;
   };
   OptionalPreviewCreatorJob.prototype.onOptionalPreview = function (prev) {
     if (!this.okToProceed()) {
-      return;
-    }
-    if (!(prev && prev.url)) {
-      this.resolve(false);
       return;
     }
     this.destroyable._internalUpdateMessageWithPreviewJob(this.conversationid, this.p2p, this.affected, this.messageid, prev);   

@@ -11,9 +11,11 @@ function createMessagesOfConversationJob (lib, mylib, utilslib, utils) {
     this.conversationid = conversationid;
     this.oldestmessageid = oldestmessageid;
     this.howmany = howmany || 20;
+    this.reachedthetop = null;
   }
   lib.inherit(MessagesOfConversationJob, JobOnBank);
   MessagesOfConversationJob.prototype.destroy = function () {
+    this.reachedthetop = null;
     this.howmany = null;
     this.oldestmessageid = null;
     this.conversationid = null;
@@ -55,6 +57,7 @@ function createMessagesOfConversationJob (lib, mylib, utilslib, utils) {
     if (fetchstartind<0) {
       fetchstartind=0;
     }
+    this.reachedthetop = (fetchstartind === 0);
     //console.log('fetching from', conv.mids.length, 'convs, start with', fetchstartind, 'to', oldestind, 'total', this.howmany);
     //console.log('fetching mids', conv.mids[fetchstartind], 'to', conv.mids[oldestind-1]);
     qlib.promise2defer(
@@ -65,14 +68,22 @@ function createMessagesOfConversationJob (lib, mylib, utilslib, utils) {
       this
     );
   };
-  MessagesOfConversationJob.prototype.askForMessage = function (isgroup, mid) {
+  MessagesOfConversationJob.prototype.askForMessage = function (isgroup, mid, midindex) {
     var ret = (new this.destroyable.Jobs.FindMessageJob(this.destroyable, mid)).go().then(
       utilslib.msguserandmidder.bind(null, isgroup, this.userid, mid)
+    ).then(
+      this.onMessageFetchedForPossibleFirstMark.bind(this, midindex)
     );
+    midindex = null;
     isgroup = null;
     return ret;
   };
-
+  MessagesOfConversationJob.prototype.onMessageFetchedForPossibleFirstMark = function (midindex, msg) {
+    if (midindex === 0 && this.reachedthetop) {
+      msg.oldest = true;
+    }
+    return msg;
+  };
 
   mylib.MessagesOfConversationJob = MessagesOfConversationJob;
 }

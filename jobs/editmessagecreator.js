@@ -3,12 +3,13 @@ function createEditMessageJob (lib, mylib, utils) {
 
   var JobOnBank = mylib.JobOnBank;
 
-  function EditMessageJob (bank, userid, conversationid, messageid, editedMessage, defer) {
+  function EditMessageJob (bank, userid, conversationid, messageid, editedMessage, options, defer) {
     JobOnBank.call(this, bank);
     this.userid = userid;
     this.conversationid = conversationid;
     this.messageid = messageid;
     this.editedMessage = editedMessage;
+    this.options = options;
     this.conversation = null;
     this.message = null;
   }
@@ -16,7 +17,8 @@ function createEditMessageJob (lib, mylib, utils) {
   EditMessageJob.prototype.destroy = function () {
     this.message = null;
     this.conversation = null;
-    this.editMessageHistory = null;
+    this.options = null;
+    this.editMessage = null;
     this.messageid = null;
     this.conversationid = null;
     this.userid = null;
@@ -88,10 +90,10 @@ function createEditMessageJob (lib, mylib, utils) {
       if (lib.isArray(msg.edits)){
         msg.edits.push([msg.message, msg.created]);
       }else{
-        msg.edits = [[msg.message, msg.created]];
+        msg.edits = [[msg.message, msg.lastedited]];
       }
       msg.message = this.editedMessage;
-      msg.created = Date.now();
+      msg.lastedited = Date.now();
       didsomething = true;
     }
     if (didsomething) {
@@ -132,24 +134,19 @@ function createEditMessageJob (lib, mylib, utils) {
     this.doResolve();
   };
   EditMessageJob.prototype.doResolve = function () {
-    var p2p = !lib.isArray(this.conversation.afu),
-      affected = this.conversation.nr.reduce(nruer, []);
+    var p2p = utils.conversationisp2p(this.conversation),
+      affected = utils.conversationaffected(this.conversation);
     this.destroyable.conversationNotification.fire({
       id: this.conversationid,
       p2p: p2p,
       messageid: this.messageid,
       affected: affected,
       edited: this.message.message,
-      moment: this.message.created
+      moment: this.message.lastedited
     });
     (new this.destroyable.Jobs.OptionalPreviewCreatorJob(this.destroyable, this.conversationid, p2p, affected, this.messageid, this.message.message, this.options)).go();
     this.resolve({id: this.conversationid, messageid: this.messageid, editedMessage: this.editedMessage});
   };
-
-  function nruer (result, nr) {
-    result.push(nr.u);
-    return result;
-  }
 
   mylib.EditMessageJob = EditMessageJob;
 }

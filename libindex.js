@@ -174,8 +174,16 @@ function createLib (execlib, utilslib, leveldblib, msgparsinglib) {
   ChatBank.prototype.markMessageSeen = function (userid, conversationid, messageid) {
     return (new this.Jobs.MarkMessageSeenJob(this, userid, conversationid, messageid)).go();
   };
-  ChatBank.prototype.editMessage = function (userid, conversationid, messageid, editedMessage) {
-    return this.jobs.run('.', new this.Jobs.EditMessageJob(this, userid, conversationid, messageid, editedMessage));
+  ChatBank.prototype.editMessage = function (userid, conversationid, messageid, editedMessage, options) {
+    if (!options) {
+      console.error('no options for editMessage');
+      console.trace();
+      process.exit(1);
+    }
+    return this.jobs.run('.', new this.Jobs.EditMessageJob(this, userid, conversationid, messageid, editedMessage, options));
+  };
+  ChatBank.prototype.ackUserActivity = function (userid, conversationid) {
+    return (new this.Jobs.AckUserActivityJob(this, userid, conversationid)).go();
   };
   ChatBank.prototype._internalUpdateMessageWithPreviewJob = function (conversationid, p2p, affected, messageid, previewobj) {
     return this.jobs.run('.', new this.Jobs.UpdateMessageWithPreviewJob(this, conversationid, p2p, affected, messageid, previewobj));

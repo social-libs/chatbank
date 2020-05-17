@@ -88,16 +88,9 @@ function createMarkMessageSeenJob (lib, mylib, utils) {
       return;
     }
     this.seenat = Date.now();
-    if (lib.isArray(msg.seenby)) { //p2group message
-      utils.markMessageRcvdBy(msg, this.userid); //result of this call is irrelevant
-      if (utils.markMessageSeenBy(msg, this.userid)) {
-        didsomething = true;
-      }
-    } else { //p2p message
-      if (msg.seen === null) {
-        msg.seen = this.seenat;
-        didsomething = true;
-      }
+    utils.markMessageRcvdBy(msg, this.userid); //result of this call is irrelevant
+    if (utils.markMessageSeenBy(msg, this.userid)) {
+      didsomething = true;
     }
     if (didsomething) {
       (new this.destroyable.Jobs.PutMessageJob(this.destroyable, this.messageid, msg)).go().then(

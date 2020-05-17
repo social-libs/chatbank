@@ -1,7 +1,8 @@
 function createAlterUsersOnChatGroupJob (lib, mylib) {
   'use strict';
 
-  var JobOnBank = mylib.JobOnBank;
+  var JobOnBank = mylib.JobOnBank,
+    q = lib.q;
 
   function AlterUsersOnChatGroupJob (bank, conversationid, changerid, userid, defer) {
     JobOnBank.call(this, bank, defer);
@@ -73,14 +74,17 @@ function createAlterUsersOnChatGroupJob (lib, mylib) {
     );
   };
   AlterUsersOnChatGroupJob.prototype.onPutCombo = function (combo) {
+    var eventobj;
     if (!this.okToProceed()) {
       return;
     }
-    this.destroyable.conversationNotification.fire({
+    eventobj = {
       id: this.conversationid,
-      affected: this.conversation.afu,
-      lastmessage: this.conversation.lastm
-    });
+      p2p: false,
+      affected: this.conversation.afu
+    };
+    this.makeUpNotificationEvent(eventobj);
+    this.destroyable.conversationNotification.fire(eventobj);
     this.resolve(true);
   };
 
