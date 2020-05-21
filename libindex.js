@@ -169,10 +169,10 @@ function createLib (execlib, utilslib, leveldblib, msgparsinglib) {
     return (new this.Jobs.MessagesOfConversationJob(this, userid, conversationid, oldestmessageid, howmany)).go();
   };
   ChatBank.prototype.markMessageRcvd = function (userid, conversationid, messageid) {
-    return (new this.Jobs.MarkMessageRcvdJob(this, userid, conversationid, messageid)).go();
+    return this.jobs.run('.', new this.Jobs.MarkMessageRcvdJob(this, userid, conversationid, messageid));
   };
   ChatBank.prototype.markMessageSeen = function (userid, conversationid, messageid) {
-    return (new this.Jobs.MarkMessageSeenJob(this, userid, conversationid, messageid)).go();
+    return this.jobs.run('.', new this.Jobs.MarkMessageSeenJob(this, userid, conversationid, messageid));
   };
   ChatBank.prototype.editMessage = function (userid, conversationid, messageid, editedMessage, options) {
     if (!options) {
