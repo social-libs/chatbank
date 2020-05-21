@@ -11,7 +11,7 @@ function onConversationNotification (name, convnotf) {
   if (convnotf.messageid) {
     if (convnotf.rcvdby) {
       //console.log('Message rcvd notification', require('util').inspect(convnotf, {colors:true, depth:7}));
-      checkPropertiesOn(convnotf, ['p2p', 'rcvdby', 'rcvdat', 'nr', 'rcvdmessage']);
+      checkPropertiesOn(convnotf, ['p2p', 'rcvdby', 'rcvdat', 'rcvdmessage']);
       if (!(lib.isArray(convnotf.affected) && convnotf.affected.length===2)) {
         throw new Error('Message rcvd notification must have "affected" as an Array of 2 userids');
       }

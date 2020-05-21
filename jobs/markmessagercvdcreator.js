@@ -12,11 +12,9 @@ function createMarkMessageRcvdJob (lib, mylib, utils) {
     this.conversation = null;;
     this.message = null;
     this.rcvdat = null;
-    this.notread = null;
   }
   lib.inherit(MarkMessageRcvdJob, JobOnBank);
   MarkMessageRcvdJob.prototype.destroy = function () {
-    this.notread = null;
     this.rcvdat = null;
     this.message = null;
     this.conversation = null;
@@ -115,7 +113,6 @@ function createMarkMessageRcvdJob (lib, mylib, utils) {
       p2p: this.isp2p,
       rcvdby: this.userid,
       rcvdat: this.rcvdat,
-      nr: this.notread,
       affected: [this.message.from, this.userid],
       rcvdmessage: this.message
     });
