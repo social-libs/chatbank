@@ -16,9 +16,9 @@ function checkPropertiesOn (thingy, propnamearry) {
 }
 function onConversationNotification (convnotf) {
   console.log('onConversationNotification', convnotf);
-  checkPropertiesOn(convnotf, ['id', 'affected', 'lastmessage']);
-  if (convnotf.lastmessage) {
-    checkPropertiesOn(convnotf.lastmessage, ['from', 'message', 'created', 'seen']);
+  checkPropertiesOn(convnotf, ['id', 'affected', 'lastm']);
+  if (convnotf.lastm) {
+    checkPropertiesOn(convnotf.lastm, ['from', 'message', 'created', 'seen']);
   }
   setGlobal('LastConversationNotified', convnotf);
 }

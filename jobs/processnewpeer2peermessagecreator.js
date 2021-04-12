@@ -111,7 +111,7 @@ function createProcessNewPeer2PeerMessage (lib, mylib, utils) {
       affected: affected,
       mids: this.conversation.mids.slice(-2),
       nr: this.conversation.nr,
-      lastmessage: this.conversation.lastm
+      lastm: this.conversation.lastm
     });
     /*
     this.resolve(lib.extend({}, this.message, {

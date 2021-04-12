@@ -36,6 +36,9 @@ function createMessagesOfConversationJob (lib, mylib, utilslib, utils) {
   MessagesOfConversationJob.prototype.onConversation = function (conv) {
     var oldestind,
       fetchstartind;
+    if (!this.okToProceed()) {
+      return;
+    }
     if (!(conv && lib.isArray(conv.mids) && conv.mids.length>0)) {
       this.resolve([]);
       return;

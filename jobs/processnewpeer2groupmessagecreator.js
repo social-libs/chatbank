@@ -79,7 +79,7 @@ function createProcessNewPeer2GroupMessage (lib, mylib, utils) {
       affected: convarry[1].afu,
       mids: convarry[1].mids.slice(-2),
       nr: this.conversation.nr,
-      lastmessage: convarry[1].lastm
+      lastm: convarry[1].lastm
     });
     (new this.destroyable.Jobs.OptionalPreviewCreatorJob(this.destroyable, this.conversationid, false, convarry[1].afu, this.messageid, this.contents, this.options)).go();
     this.resolve({

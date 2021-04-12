@@ -4,9 +4,9 @@ require('./utils');
 setGlobal('conversationNotificationEvent', new lib.HookCollection);
 function onConversationNotification (name, convnotf) {
   //console.log('onConversationNotification', convnotf);
-  checkPropertiesOn(convnotf, ['id', 'affected'/*, 'lastmessage'*/]);
-  if (convnotf.lastmessage) {
-    checkPropertiesOn(convnotf.lastmessage, ['from', 'message', 'created']);
+  checkPropertiesOn(convnotf, [/*'id'*/, 'affected'/*, 'lastm'*/]);
+  if (convnotf.lastm) {
+    checkPropertiesOn(convnotf.lastm, ['from', 'message', 'created']);
   }
   if (convnotf.messageid) {
     if (convnotf.rcvdby) {

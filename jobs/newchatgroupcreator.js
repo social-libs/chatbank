@@ -79,6 +79,8 @@ function createNewChatGroupJob (lib, mylib, utils) {
     this.destroyable.conversationNotification.fire({
       newgroup: true,
       id: this.conversationid,
+      name: this.groupname,
+      picture: this.picture,
       p2p: false,
       affected: this.conversation.afu,
       mids: this.conversation.mids.slice(-2)

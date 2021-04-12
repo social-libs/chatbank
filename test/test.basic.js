@@ -1,5 +1,13 @@
 var utils = require('../utils')(lib);
 var testlib = require('./lib');
+function fakeconvarchiver (convid, conv) {
+  //console.log('fakeconvarchiver got', convid, conv);
+  return q(conv);
+}
+function fakemessagearchiver (mid, msg) {
+  //console.log('fakemessagearchiver?', mid, msg);
+  return q(mid);
+}
 describe('Basic Test', function () {
   loadMochaIntegration('social_chatbanklib');
   it('Create Bank', function () {
@@ -140,6 +148,9 @@ describe('Basic Test', function () {
       {id: BasicBank_LastConversationNotified.id, messageid: 6} 
     );
   });
+  it('Remember the group id', function () {
+    return setGlobal('GroupId1', BasicBank_LastConversationNotified.id);
+  });
   //preview testing
   it('luka sends a message with link, preview true', function () {
     return expect(
@@ -151,6 +162,22 @@ describe('Basic Test', function () {
   it('Wait for preview', function () {
     this.timeout(1e7);
     return waitForConversationNotification({'preview.root': 'https://www.youtube.com'});
+  });
+  it('Remove p2p conversation', function () {
+    return expect(qlib.promise2console(BasicBank.removeConversation(['andra', 'luka'], fakeconvarchiver, fakemessagearchiver), 'removeConversation p2p 1#')
+    ).to.eventually.include(
+      {id:utils.zeroStringJoinSorted('andra', 'luka')}
+    );
+  });
+  it('Fail to Remove the same p2p conversation', function () {
+    return expect(qlib.promise2console(BasicBank.removeConversation(['andra', 'luka'], fakeconvarchiver, fakemessagearchiver), 'removeConversation p2p #2')
+    ).to.eventually.equal(false);
+  });
+  it('Remove group conversation', function () {
+    return expect(qlib.promise2console(BasicBank.removeConversation(GroupId1, fakeconvarchiver, fakemessagearchiver), 'removeConversation group')
+    ).to.eventually.include(
+      {id:GroupId1}
+    );
   });
   it('Finish', function () {
     return deInitChatLib();

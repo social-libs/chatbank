@@ -74,15 +74,24 @@ function createAlterUsersOnChatGroupJob (lib, mylib) {
     );
   };
   AlterUsersOnChatGroupJob.prototype.onPutCombo = function (combo) {
-    var eventobj;
+    var convid, convobj, eventobj;
     if (!this.okToProceed()) {
       return;
     }
+    convid = combo[1][0];
+    convobj = combo[1][1];
+    //console.log(this.constructor.name, 'finally', this.conversationid, convid, convobj);
     eventobj = {
-      id: this.conversationid,
+      id: convid,
+      cby: convobj.cby,
       p2p: false,
-      affected: this.conversation.afu
+      name: convobj.name,
+      picture: convobj.picture,
+      affected: convobj.afu,
+      mids: convobj.mids,
+      nr: convobj.nr
     };
+
     this.makeUpNotificationEvent(eventobj);
     this.destroyable.conversationNotification.fire(eventobj);
     this.resolve(true);

@@ -182,6 +182,9 @@ function createLib (execlib, utilslib, leveldblib, msgparsinglib) {
     }
     return this.jobs.run('.', new this.Jobs.EditMessageJob(this, userid, conversationid, messageid, editedMessage, options));
   };
+  ChatBank.prototype.removeConversation = function (conversationid, conversationarchiverpp, messagearchiverpp) {
+    return this.jobs.run('.', new this.Jobs.RemoveConversationJob(this, conversationid, conversationarchiverpp, messagearchiverpp));
+  };
   ChatBank.prototype.ackUserActivity = function (userid, conversationid) {
     return this.jobs.run('.', new this.Jobs.AckUserActivityJob(this, userid, conversationid));
   };

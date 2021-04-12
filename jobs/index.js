@@ -15,6 +15,9 @@ function createJobs (lib, utilslib, msgparsinglib, utils) {
   require('./findusercreator')(lib, ret);
   require('./findconversationcreator')(lib, ret);
   require('./findmessagecreator')(lib, ret);
+  require('./delentitycreator')(lib, ret);
+  require('./delconversationcreator')(lib, ret);
+  require('./delmessagecreator')(lib, ret);
   require('./getconversationmessagescreator')(lib, ret);
   require('./processnewpeer2peermessagecreator')(lib, ret, utils);
   require('./processnewpeer2groupmessagecreator')(lib, ret, utils);
@@ -33,6 +36,11 @@ function createJobs (lib, utilslib, msgparsinglib, utils) {
   require('./optionalpreviewcreatorcreator')(lib, ret, msgparsinglib, utils);
   require('./updatemessagewithpreviewcreator')(lib, ret, msgparsinglib, utils);
   require('./ackuseractivitycreator')(lib, ret, utils);
+  require('./removeconversationcreator')(lib, ret, utils);
+
+  require('./conversationmessagestraverserbasecreator')(lib, ret);
+  require('./conversationmessagesarchivercreator')(lib, ret);
+  require('./conversationmessagesdeletercreator')(lib, ret);
 
   return ret;
 }
